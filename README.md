@@ -1,2 +1,2 @@
-# risim
-Radio Interferometry Simulator
+# Radio Interferometry Simulator
+
