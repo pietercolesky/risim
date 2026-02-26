@@ -1,0 +1,38 @@
+# Compiler and flags
+COMPILER ?= gcc
+FLAGS ?= -O2 -Wall -Wno-variadic-macros -pedantic -g -pthread -lgnuplot_i -luuid
+LDFLAGS ?= -g
+LDLIBS = -lm -lgsl -lgslcblas -lpthread -luuid -llapacke -llapack -lblas
+
+# Executable names
+EXECUTABLE = risim
+
+# Directories
+SRC_DIR = src
+INCLUDE_DIR = include
+OBJ_DIR = obj
+LIB_DIR = lib
+
+# Source files
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
+
+# Targets
+.PHONY: all clean
+
+all: release
+
+release: $(OBJ_DIR) $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJS)
+	$(COMPILER) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(COMPILER) $(FLAGS) -I$(INCLUDE_DIR) -I$(LIB_DIR) -o $@ -c $<
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+clean:
+	rm -rf $(OBJ_DIR)/*.o
+	rm -f $(EXECUTABLE)

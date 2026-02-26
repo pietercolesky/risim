@@ -1,0 +1,51 @@
+# Compiler and flags
+COMPILER ?= gcc
+FLAGS ?= -O2 -Wall -Wno-variadic-macros -pedantic -g -pthread -lgnuplot_i -luuid -I/home/apps2/lapack/3.12.0/LAPACKE/include
+LDFLAGS ?= -g -L/home/apps2/lapack/3.12.0
+LDLIBS = -lm -lgsl -lgslcblas -lpthread -luuid -llapacke -llapack -lblas -lgfortran
+
+# Executable names
+EXECUTABLE = risim
+TEST_EXECUTABLE = unit_test_runner
+
+# Directories
+SRC_DIR = src
+INCLUDE_DIR = include
+TEST_DIR = unit_test
+OBJ_DIR = obj
+LIB_DIR = lib
+
+# Source files
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
+
+TEST_SRCS = $(wildcard $(TEST_DIR)/*.c)
+TEST_OBJS = $(patsubst $(TEST_DIR)/%.c,$(OBJ_DIR)/%.o,$(TEST_SRCS))
+
+# Targets
+.PHONY: all clean test
+
+all: release
+
+release: $(OBJ_DIR) $(EXECUTABLE)
+
+test: $(OBJ_DIR) $(TEST_EXECUTABLE)
+
+$(EXECUTABLE): $(OBJS)
+        $(COMPILER) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(TEST_EXECUTABLE): $(TEST_OBJS) $(LIB_DIR)/unity.o $(filter-out $(OBJ_DIR)/main.o, $(OBJS))
+        $(COMPILER) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+        $(COMPILER) $(FLAGS) -I$(INCLUDE_DIR) -I$(LIB_DIR) -o $@ -c $<
+
+$(OBJ_DIR)/%.o: $(TEST_DIR)/%.c
+        $(COMPILER) $(FLAGS) -I$(INCLUDE_DIR) -I$(LIB_DIR) -I$(SRC_DIR) -o $@ -c $<
+
+$(OBJ_DIR):
+        mkdir -p $(OBJ_DIR)
+
+clean:
+        rm -rf $(OBJ_DIR)/*.o
+        rm -f $(EXECUTABLE) $(TEST_EXECUTABLE)                                                
