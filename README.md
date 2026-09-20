@@ -46,7 +46,7 @@ make hpc        # build with the HPC library paths
 | `-v`, `--valgrind` | Run under Valgrind |
 | `--hpc` | Run the HPC build |
 
-Arguments after the option are passed through, so `./run.sh -l calibrate -o 2 2` works.
+Arguments after the option are passed through, so `./run.sh -l simulate -o 2 2` works.
 
 ## Running
 
@@ -74,7 +74,6 @@ Algorithm names are `stefcal`, `nos`, `lm-rv`, `lm-eo`, `lm-rv-rt`, `lm-eo-rt`, 
 ```bash
 make local
 ./risim simulate -o 2 2      # 64 datasets: 4 seeds x 4 SNRs x 4 gain amplitudes
-./risim calibrate            # calibrate one of them and print the statistics
 ```
 
 ### Reproducing the paper's results

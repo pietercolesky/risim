@@ -48,7 +48,6 @@
 #define DEFAULT_DIRECTORY "./simulation_environment"
 
 int main(int argc, char* argv[]);
-void run_calibration_test(char* directory);
 
 void mapping_local(int* order, char* directory, char* filename, enum AlgorithmType* algorithm);
 void create_simulators(int* order, char* directory);
@@ -130,56 +129,6 @@ static void create_x_y_points_stochastic_adaptive_variant(char* directory, size_
 void create_x_y_points_from_optimal_stochastic_adaptive(char* directory, size_t* order_min, size_t* order_max);
 void create_x_y_points_from_original_stochastic_adaptive(char* directory, size_t* order_min, size_t* order_max);
 
-
-/**
- * Smoke test: read one simulated dataset back, calibrate it with StEFCal and
- * report the convergence statistics the rest of the pipeline is built on.
- * Useful to confirm a build works before starting a long run.
- */
-void run_calibration_test(char* directory) {
-    int seed = 12345678;
-    double snr = 1000;
-    double max_amp = 2;
-    int order = 2;
-    int num_workers = 4;
-
-    char filename[MAX_STRING_LENGTH];
-    snprintf(filename, sizeof(filename),
-             "%s/simulators/sim_seed_%u_order_%d_snr_%.0lf_maxamp_%.0lf.sconfig",
-             directory, seed, order, snr, max_amp);
-    printf("%s\n", filename);
-
-    struct Simulator* simulator = read_from_file_s(filename);
-    if (simulator == NULL) {
-        printf("Could not read %s -- run `risim simulate` first.\n", filename);
-        return;
-    }
-
-    struct Calibrator* calibrator = new_c(simulator);
-    set_parallel_c(calibrator, &num_workers);
-
-    struct Stopwatch* stopwatch = new_sw();
-    solve_G_StEFCal(calibrator, &(size_t){IMAX}, &(double){TAU});
-    print_sw(stopwatch);
-    free_sw(stopwatch);
-
-    double* average_iterations = get_average_iterations_dc(calibrator->datacollector);
-    double* std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
-    double* last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
-
-    printf("Iterations Mean = %f\n", *average_iterations);
-    printf("Iterations std  = %lf\n", *std_iterations);
-    printf("Residual Norm   = %lf\n", *last_residual_norm);
-
-    free(last_residual_norm);
-    free(std_iterations);
-    free(average_iterations);
-
-    correct_visibilities(calibrator);
-
-    free_s(simulator);
-    free_c(calibrator);
-}
 
 void mapping_local(int* order, char* directory, char* filename, enum AlgorithmType* algorithm) {
     char dd_directory[256];
@@ -7920,8 +7869,6 @@ static const struct Algorithm ALGORITHMS[] = {
 static const struct Command COMMANDS[] = {
     {"simulate",            "simulation", K_SIM,      (fnptr)create_simulators,
      "generate the visibility datasets for one antenna order"},
-    {"calibrate",           "simulation", K_DIR,      (fnptr)run_calibration_test,
-     "calibrate one dataset with StEFCal and print its statistics"},
 
     {"dict-grid",           "dictionaries", K_NAMED,  (fnptr)create_data_dictionary_orders,
      "create the grid-search data dictionaries (-a)"},
