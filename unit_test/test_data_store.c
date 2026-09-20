@@ -2,8 +2,6 @@
 #include "data_store.h"
 #include "jagged_array.h"
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 #ifndef M_PI
 #define M_PI (3.14159265358979323846264338327950288)
@@ -292,18 +290,22 @@ void test_compare_parameters_ds_true() {
 }
 
 //Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-//     // RUN_TEST(test_create_ds);
-//     // RUN_TEST(test_print_ds);
-//     // RUN_TEST(test_save_to_file_ds);
-//     // RUN_TEST(test_read_from_file_ds);
-//     RUN_TEST(test_start_ds);
-//     // RUN_TEST(test_new_structure_ds);
-//     // RUN_TEST(test_read_structure_ds);
-//     // RUN_TEST(test_stefcal_lm_lambda);
-//     // RUN_TEST(test_map_average_iterations_ds);
-//     // RUN_TEST(test_compare_parameters_ds_false);
-//     // RUN_TEST(test_compare_parameters_ds_true);
-//     return UNITY_END();
-// }   
+int run_data_store_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_create_ds);
+    RUN_TEST(test_print_ds);
+    RUN_TEST(test_save_to_file_ds);
+    RUN_TEST(test_read_from_file_ds);
+    /* Integration tests: these need datasets generated beforehand (see
+     * `risim simulate`) and run a full search, so they are not part of the
+     * default `make test` run. Enable them once the data is in place. */
+    // RUN_TEST(test_start_ds);
+    // RUN_TEST(test_new_structure_ds);
+    // RUN_TEST(test_read_structure_ds);
+    // RUN_TEST(test_stefcal_lm_lambda);
+    // RUN_TEST(test_map_average_iterations_ds);
+    RUN_TEST(test_compare_parameters_ds_false);
+    RUN_TEST(test_compare_parameters_ds_true);
+    return UNITY_END();
+}   
+

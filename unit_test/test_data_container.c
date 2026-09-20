@@ -1,8 +1,6 @@
 #include "unity.h"
 #include "data_container.h"
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 #ifndef M_PI
 #define M_PI (3.14159265358979323846264338327950288)
@@ -103,16 +101,16 @@ void test_get_progress_dcon() {
 }
 
 //Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-//     RUN_TEST(test_new_dcon);
-//     RUN_TEST(test_print_dcon);
-//     RUN_TEST(test_set_item_dcon);
-//     RUN_TEST(test_save_to_file_dcon);
-//     RUN_TEST(test_read_from_file_dcon);
-//     RUN_TEST(test_contains_item_dcon);
-//     RUN_TEST(test_update_file_dcon);
-//     RUN_TEST(test_set_item_update_dcon);
-//     RUN_TEST(test_get_progress_dcon);
-//     return UNITY_END();
-// }   
+int run_data_container_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_new_dcon);
+    RUN_TEST(test_print_dcon);
+    RUN_TEST(test_set_item_dcon);
+    RUN_TEST(test_save_to_file_dcon);
+    RUN_TEST(test_read_from_file_dcon);
+    RUN_TEST(test_contains_item_dcon);
+    RUN_TEST(test_update_file_dcon);
+    RUN_TEST(test_set_item_update_dcon);
+    RUN_TEST(test_get_progress_dcon);
+    return UNITY_END();
+}   

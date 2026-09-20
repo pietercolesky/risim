@@ -1,8 +1,6 @@
 #include "unity.h"
 #include "progress_bar.h"
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 void test_new_pb() {
 
@@ -14,8 +12,8 @@ void test_new_pb() {
 }
 
 // Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-//     RUN_TEST(test_new_pb);
-//     return UNITY_END();
-// }   
+int run_progress_bar_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_new_pb);
+    return UNITY_END();
+}   

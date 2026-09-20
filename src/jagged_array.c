@@ -12,14 +12,14 @@
 #include <math.h>
 
 /**
- * Create new Jaggedarray
+ * Create new JaggedArray
  * RETURNS:
- *  - Jaggedarray struct pointer
+ *  - JaggedArray struct pointer
  * INPUTE:
  *  - size
 */
-struct Jaggedarray* new_ja(size_t* size) {
-    struct Jaggedarray* jagged_array = malloc(sizeof(struct Jaggedarray));
+struct JaggedArray* new_ja(size_t* size) {
+    struct JaggedArray* jagged_array = malloc(sizeof(struct JaggedArray));
 
     jagged_array->size = malloc(sizeof(size_t));
     *jagged_array->size = *size;
@@ -33,13 +33,13 @@ struct Jaggedarray* new_ja(size_t* size) {
 }
 
 /**
- * free Jaggedarray
+ * free JaggedArray
  * RETURNS:
  *  - None
  * INPUTE:
- *  - Jaggedarray Pointer
+ *  - JaggedArray Pointer
 */
-void free_ja(struct Jaggedarray* jagged_array) {
+void free_ja(struct JaggedArray* jagged_array) {
     if (jagged_array == NULL) {
       log_null_value(__FILE__, __LINE__);
     }
@@ -62,17 +62,17 @@ void free_ja(struct Jaggedarray* jagged_array) {
 }
 
 /**
- * set array in Jaggedarray
+ * set array in JaggedArray
  * RETURNS:
  *  - None
  * INPUTE:
- *  - struct Jaggedarray pointer
+ *  - struct JaggedArray pointer
  *  - struct array pointer
  *  - index
  * NOTE:
  *  - A copy of the array will be made.
 */
-void set_ja(struct Jaggedarray* jagged_array, struct array* array, size_t* index) {
+void set_ja(struct JaggedArray* jagged_array, struct array* array, size_t* index) {
     if (jagged_array == NULL) {
       log_null_value(__FILE__, __LINE__);
     }
@@ -91,14 +91,14 @@ void set_ja(struct Jaggedarray* jagged_array, struct array* array, size_t* index
 }
 
 /**
- * get array in Jaggedarray
+ * get array in JaggedArray
  * RETURNS:
  *  - struct array pointer
  * INPUTE:
- *  - struct Jaggedarray pointer
+ *  - struct JaggedArray pointer
  *  - index
 */
-struct array* get_ja(struct Jaggedarray* jagged_array, size_t* index) {
+struct array* get_ja(struct JaggedArray* jagged_array, size_t* index) {
     if (jagged_array == NULL) {
       log_null_value(__FILE__, __LINE__);
     }
@@ -106,15 +106,15 @@ struct array* get_ja(struct Jaggedarray* jagged_array, size_t* index) {
 }
 
 /**
- * save Jaggedarray
+ * save JaggedArray
  * RETURNS:
  *  - None
  * INPUTE:
- *  - Jaggedarray
+ *  - JaggedArray
  *  - directory
  *  - filename
 */
-void save_to_file_ja(struct Jaggedarray* jagged_array, char* directory, char* filename) {
+void save_to_file_ja(struct JaggedArray* jagged_array, char* directory, char* filename) {
     if (jagged_array == NULL) {
       log_null_value(__FILE__, __LINE__);
     }
@@ -184,13 +184,13 @@ void save_to_file_ja(struct Jaggedarray* jagged_array, char* directory, char* fi
 }
 
 /**
- * Read Jaggedarray
+ * Read JaggedArray
  * RETURNS:
- *  - Jaggedarray struct pointer
+ *  - JaggedArray struct pointer
  * INPUTE:
  *  - filepath
 */
-struct Jaggedarray* read_from_file_ja(char* filepath) {
+struct JaggedArray* read_from_file_ja(char* filepath) {
     if(!ends_with_string(filepath, ".jarray")) {
         log_invalid_file_extension(__FILE__,__LINE__);
     }
@@ -206,7 +206,7 @@ struct Jaggedarray* read_from_file_ja(char* filepath) {
         log_error_fscan(__FILE__,__LINE__);
     }
 
-    struct Jaggedarray* read_jagged_array = new_ja(&size);
+    struct JaggedArray* read_jagged_array = new_ja(&size);
 
     for (size_t i = 0; i < size; i++) {
       enum DataType type = 0;
@@ -281,13 +281,13 @@ struct Jaggedarray* read_from_file_ja(char* filepath) {
 }
 
 /**
- * print Jaggedarray
+ * print JaggedArray
  * RETURNS:
  *  - None
  * INPUTE:
- *  - Jaggedarray
+ *  - JaggedArray
 */
-void print_ja(struct Jaggedarray* jagged_array) {
+void print_ja(struct JaggedArray* jagged_array) {
     if (jagged_array == NULL) {
       log_null_value(__FILE__, __LINE__);
     }
@@ -304,13 +304,13 @@ void print_ja(struct Jaggedarray* jagged_array) {
 }
 
 /**
- * Average of Jaggedarray
+ * Average of JaggedArray
  * RETURNS:
  *  - average
  * INPUTE:
- *  - Jaggedarray
+ *  - JaggedArray
 */
-void* average_ja(struct Jaggedarray* jagged_array) {
+void* average_ja(struct JaggedArray* jagged_array) {
     if (jagged_array == NULL) {
       log_null_value(__FILE__, __LINE__);
     }
@@ -399,13 +399,13 @@ void* average_ja(struct Jaggedarray* jagged_array) {
 }
 
 /**
- * Norm of Jaggedarray
+ * Norm of JaggedArray
  * RETURNS:
  *  - norm
  * INPUTE:
- *  - Jaggedarray
+ *  - JaggedArray
 */
-void* norm_ja(struct Jaggedarray* jagged_array) {
+void* norm_ja(struct JaggedArray* jagged_array) {
     if (jagged_array == NULL) {
       log_null_value(__FILE__, __LINE__);
     }

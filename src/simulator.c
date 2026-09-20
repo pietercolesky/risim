@@ -509,7 +509,7 @@ void plot_ant(struct Simulator* simulator) {
     FILE *commandsFile = fopen("commands.gplot", "w");
     fprintf(commandsFile, "set terminal png\n");
     fprintf(commandsFile, "set title '%s'\n", title);
-    fprintf(commandsFile, "set output './figures/enu_coordinates_antenna.png'\n");
+    fprintf(commandsFile, "set output './pictures/enu_coordinates_antenna.png'\n");
     fprintf(commandsFile, "set offsets graph 0.3, graph 0.3, graph 0.3, graph 0.3\n");
     fprintf(commandsFile, "set xlabel 'W-E [m]'\n");
     fprintf(commandsFile, "set ylabel 'S-N [m]'\n");
@@ -702,7 +702,7 @@ void plot_uv_coverage(struct Simulator* simulator) {
     FILE *commandsFile = fopen("commands.gplot", "w");
     fprintf(commandsFile, "set terminal png\n");
     fprintf(commandsFile, "set title '%s'\n", title);
-    fprintf(commandsFile, "set output './figures/uv_tracks.png'\n");
+    fprintf(commandsFile, "set output './pictures/uv_tracks.png'\n");
     fprintf(commandsFile, "set offsets graph 0.3, graph 0.3, graph 0.3, graph 0.3\n");
     fprintf(commandsFile, "set yrange [%lf:%lf]\n", -1.1 * *amax_y, 1.1 * *amax_y);
     fprintf(commandsFile, "set xrange [%lf:%lf]\n", -1.1 * *amax_x, 1.1 * *amax_x);
@@ -774,7 +774,7 @@ void create_point_sources(struct Simulator* simulator, size_t* num_sources, doub
 */
 struct array* generate_flux(struct Simulator* simulator, double* a, size_t* num_sources) {
 
-    //Creating array
+    //Creating Array
     struct array* flux_values = zeros_a(&(size_t){1}, (size_t[]){*num_sources}, &(enum DataType){DOUBLE});
 
     for (size_t i = 0; i < *num_sources; i++) {
@@ -796,7 +796,7 @@ struct array* generate_flux(struct Simulator* simulator, double* a, size_t* num_
 */
 struct array* generate_pos(struct Simulator* simulator, double* fov, size_t* num_sources) {
 
-    //Creating array
+    //Creating Array
     struct array* pos_values = zeros_a(&(size_t){1}, (size_t[]){*num_sources}, &(enum DataType){DOUBLE});
 
     for (size_t i = 0; i < *num_sources; i++) {
@@ -900,7 +900,7 @@ void plot_antenna_gains_amplitude(struct Simulator* simulator) {
     FILE *commandsFile = fopen("commands.gplot", "w");
     fprintf(commandsFile, "set terminal png\n");
     fprintf(commandsFile, "set title '%s'\n", title);
-    fprintf(commandsFile, "set output './figures/antenna_gains_amplitude.png'\n");
+    fprintf(commandsFile, "set output './pictures/antenna_gains_amplitude.png'\n");
     fprintf(commandsFile, "set offsets graph 0.01, graph 0.01, graph 0.01, graph 0.01\n");
     fprintf(commandsFile, "set xlabel 'Time Slots' font 'arial,10'\n");
     fprintf(commandsFile, "set ylabel 'Amplitude |g|' font 'arial,10'\n");
@@ -952,7 +952,7 @@ void plot_antenna_gains_phase(struct Simulator* simulator) {
     FILE *commandsFile = fopen("commands.gplot", "w");
     fprintf(commandsFile, "set terminal png\n");
     fprintf(commandsFile, "set title '%s'\n", title);
-    fprintf(commandsFile, "set output './figures/antenna_gains_phase.png'\n");
+    fprintf(commandsFile, "set output './pictures/antenna_gains_phase.png'\n");
     fprintf(commandsFile, "set offsets graph 0.01, graph 0.01, graph 0.01, graph 0.01\n");
     fprintf(commandsFile, "set xlabel 'Time Slots' font 'arial,10'\n");
     fprintf(commandsFile, "set ylabel 'Phase (g)' font 'arial,10'\n");
@@ -1071,7 +1071,7 @@ void create_vis_mat(struct Simulator* simulator, int* w_m_include, bool noise) {
 /**
  * Determines the power in signal
  * RETURNS:
- *  - array struct pointer = contains 
+ *  - Array struct pointer = contains 
  *      {D_pow - The power in each baseline,
  *       d_pow1 - Average power over entire matrix,
  *       d_pow2 - Average of D_pow over baselines}
@@ -1229,7 +1229,7 @@ void plot_visibilities(struct Simulator* simulator, size_t* b_0, size_t* b_1) {
     FILE *commandsFile = fopen("commands.gplot", "w");
     fprintf(commandsFile, "set terminal png\n");
     fprintf(commandsFile, "set title '%s'\n", title);
-    fprintf(commandsFile, "set output './figures/visibilities_baseline.png'\n");
+    fprintf(commandsFile, "set output './pictures/visibilities_baseline.png'\n");
     fprintf(commandsFile, "set offsets graph 0.01, graph 0.01, graph 0.01, graph 0.01\n");
     fprintf(commandsFile, "set xlabel 'Time Slots' font 'arial,10'\n");
     fprintf(commandsFile, "set ylabel 'Jy' font 'arial,10'\n");

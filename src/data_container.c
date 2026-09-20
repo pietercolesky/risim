@@ -486,7 +486,7 @@ void set_new_array_dcon(struct DataContainer** data_container, size_t* index, ch
 /**
  * Add a jarray to this datacontainer at a sepecific posision
 */
-void set_new_jarray_dcon(struct DataContainer** data_container, size_t* index, char* name, struct Jaggedarray* jagged_array) {
+void set_new_jarray_dcon(struct DataContainer** data_container, size_t* index, char* name, struct JaggedArray* jagged_array) {
     if (*(*data_container)->type != 2) {
         log_invalid_type(__FILE__,__LINE__);
     }

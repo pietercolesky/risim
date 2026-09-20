@@ -40,6 +40,10 @@ struct PSO {
     char* dd_name;
     char* dd_directory;
     int* num_workers;
+    double* fixed_alpha;
+    char* alpha_directory;
+    double* fixed_b;
+    char* b_directory;
 };
 
 /**
@@ -50,6 +54,16 @@ struct PSO {
  * 
 */
 struct PSO* new_pso(enum AlgorithmType* option, size_t* num_dimensions, struct array* position_bounds, size_t* iterations_max, size_t* num_particles, int* seed, char* simulators_directory, int* order, size_t* k, char* dd_name, char* dd_directory, int* num_workers);
+
+/**
+ * Same as new_pso, but additionally binds a constant alpha onto the PSO struct
+ * (used by ADAM_FIXED_ALPHA — the value may also be re-bound per experiment
+ * inside the start_*_pso entry points by looking up the corresponding
+ * data_optimal_solutions/adam_best_alpha/... file).
+*/
+struct PSO* new_pso_fixed_alpha(enum AlgorithmType* option, size_t* num_dimensions, struct array* position_bounds, size_t* iterations_max, size_t* num_particles, int* seed, char* simulators_directory, int* order, size_t* k, char* dd_name, char* dd_directory, int* num_workers, double* fixed_alpha);
+
+struct PSO* new_pso_fixed_b(enum AlgorithmType* option, size_t* num_dimensions, struct array* position_bounds, size_t* iterations_max, size_t* num_particles, int* seed, char* simulators_directory, int* order, size_t* k, char* dd_name, char* dd_directory, int* num_workers, double* fixed_b);
 
 /**
  * Free pso

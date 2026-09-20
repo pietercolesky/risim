@@ -232,6 +232,24 @@ void update_position_bounds_particle(struct Particle* particle) {
           set_element_a(particle->positions, (size_t[]){1}, &(double){position_y});
         }
         break;
+      case ADAM_FIXED_ALPHA:
+        /* 2-D box bounds on (x=B1, y=B2). alpha is fixed by the stage-1 PSO, so this
+         * stage searches the (B1, B2) plane only, with no constraint beyond the box --
+         * the same rule as LEVENBERG_MARQUARDT above.
+         *
+         * This case was missing, so ADAM_FIXED_ALPHA fell through to `default: break;`
+         * and no position was ever written back: every particle stayed at its random
+         * initial position for the whole run, and the "optimum" was the best of the
+         * initial sample rather than the result of a search. */
+        if ((position_x <= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){1})) &&
+            (position_y <= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){3})) &&
+            (position_x >= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){0})) &&
+            (position_y >= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){2})))
+        {
+          set_element_a(particle->positions, (size_t[]){0}, &(double){position_x});
+          set_element_a(particle->positions, (size_t[]){1}, &(double){position_y});
+        }
+        break;
       case STEFCAL_IMPROVED:
         if ((position_x >= x_bound || position_y >= y_bound) && 
             (position_x <= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){1})) && 
@@ -283,7 +301,51 @@ void update_position_bounds_particle(struct Particle* particle) {
           set_element_a(particle->positions, (size_t[]){2}, &(double){position_z});
         }
         break;
+      case STEFCAL_STOCHASTIC_ADAPTIVE:
+        // 2-D box bounds on (x=lambda, y=b0); plain box, no diagonal exclusion.
+        if ((position_x <= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){1})) &&
+            (position_x >= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){0})) &&
+            (position_y <= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){3})) &&
+            (position_y >= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){2})))
+        {
+          set_element_a(particle->positions, (size_t[]){0}, &(double){position_x});
+          set_element_a(particle->positions, (size_t[]){1}, &(double){position_y});
+        }
+        break;
+      case STEFCAL_STOCHASTIC_FIXED_B:
+        // 2-D bounds on (x=l1, y=l2): l1+l2 >= 0.5 (above y = -x + 0.5), l1 > 0.001,
+        // l2 > 0.001, plus the box bounds. (position_x >= x_bound || position_y >= y_bound)
+        // is exactly position_x + position_y >= 0.5.
+        if ((position_x >= x_bound || position_y >= y_bound) &&
+            (position_x > 0.001) && (position_y > 0.001) &&
+            (position_x <= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){1})) &&
+            (position_x >= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){0})) &&
+            (position_y <= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){3})) &&
+            (position_y >= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){2})))
+        {
+          set_element_a(particle->positions, (size_t[]){0}, &(double){position_x});
+          set_element_a(particle->positions, (size_t[]){1}, &(double){position_y});
+        }
+        break;
+      case STEFCAL_STOCHASTIC_L1L2:
+        // 3-D box bounds on (l1, l2, b0), like ADAM.
+        if ((position_x <= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){1})) &&
+            (position_x >= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){0})) &&
+            (position_y <= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){3})) &&
+            (position_y >= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){2})) &&
+            (position_z <= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){5})) &&
+            (position_z >= *(double*)get_element_a(particle->pso->position_bounds, (size_t[]){4})))
+        {
+          set_element_a(particle->positions, (size_t[]){0}, &(double){position_x});
+          set_element_a(particle->positions, (size_t[]){1}, &(double){position_y});
+          set_element_a(particle->positions, (size_t[]){2}, &(double){position_z});
+        }
+        break;
       default:
+        /* An unhandled option here silently freezes the swarm: velocities are computed
+         * but no position is ever written, so the run looks like an instantly converged
+         * PSO. Fail loudly instead. */
+        log_invalid_algorithm_type(__FILE__, __LINE__);
         break;
     }
 }

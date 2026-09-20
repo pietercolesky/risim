@@ -5,8 +5,6 @@
 #include "pso.h"
 #include "particle.h"
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 void test_new_particle() {
     enum AlgorithmType option = STEFCAL_LAMBDA;
@@ -103,9 +101,9 @@ void test_new_particle_w_c1_c2() {
 }
 
 // Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-//     RUN_TEST(test_new_particle);
-//     RUN_TEST(test_new_particle_w_c1_c2);
-//     return UNITY_END();
-// }   
+int run_particle_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_new_particle);
+    RUN_TEST(test_new_particle_w_c1_c2);
+    return UNITY_END();
+}   

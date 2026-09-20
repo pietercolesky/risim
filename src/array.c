@@ -1,5 +1,5 @@
 /**
-  * @file array.c
+  * @file Array.c
   * This is the implementation of the functions of array.h
   */
 
@@ -1354,7 +1354,7 @@ struct array* linspace_a(void* start, void* end, size_t* num_points, enum DataTy
     switch (*type) {
         case DOUBLE: {
             result = new_a(&(size_t){1}, (size_t[]){*num_points}, &(enum DataType){DOUBLE});
-            // printarray(result);
+            // printArray(result);
             double* arr = (double*)result->array;
             if (*num_points == 1) {
                 arr[0] = *(double*)start;
@@ -1366,7 +1366,7 @@ struct array* linspace_a(void* start, void* end, size_t* num_points, enum DataTy
             for (size_t j = 0; j < *num_points; j++){
                 arr[j] = (*(double*)start + j * step);
             }
-            // printarray(result);
+            // printArray(result);
             return result;
         }
         case FLOAT: {
@@ -1393,7 +1393,7 @@ struct array* linspace_a(void* start, void* end, size_t* num_points, enum DataTy
 }
 
 /**
- * array multiplied by constant
+ * Array multiplied by constant
 */
 struct array* multiply_constant_a(struct array* array, void* constant, enum DataType* constant_type) {
     struct array* result = zeros_a(array->num_dimensions, array->dimensions, array->type);
@@ -1500,7 +1500,7 @@ struct array* multiply_constant_a(struct array* array, void* constant, enum Data
 }
 
 /**
- * array divised by constant
+ * Array divised by constant
 */
 struct array* division_constant_a(struct array* array, void* constant, enum DataType* constant_type) {
     struct array* result = zeros_a(array->num_dimensions, array->dimensions, array->type);
@@ -1607,7 +1607,7 @@ struct array* division_constant_a(struct array* array, void* constant, enum Data
 }
 
 /**
- * array minus by constant
+ * Array minus by constant
 */
 struct array* minus_constant_a(struct array* array, void* constant, enum DataType* constant_type) {
     struct array* result = zeros_a(array->num_dimensions, array->dimensions, array->type);
@@ -1714,7 +1714,7 @@ struct array* minus_constant_a(struct array* array, void* constant, enum DataTyp
 }
 
 /**
- * array addition by constant
+ * Array addition by constant
 */
 struct array* addition_constant_a(struct array* array, void* constant, enum DataType* constant_type) {
     struct array* result = zeros_a(array->num_dimensions, array->dimensions, array->type);
@@ -1873,7 +1873,7 @@ void* max_a(struct array* array) {
             // double complex* arr = (double complex*)array->array;
 
             // double complex max = arr[0];
-            // for (size_t i = 1; i < getarraySize(array); i++){
+            // for (size_t i = 1; i < getArraySize(array); i++){
             //     if (arr[i] > max) {
             //         max = arr[i];
             //     }
@@ -1975,7 +1975,7 @@ void* amax_a(struct array* array) {
             // double complex* arr = (double complex*)array->array;
 
             // double complex max = arr[0];
-            // for (size_t i = 1; i < getarraySize(array); i++){
+            // for (size_t i = 1; i < getArraySize(array); i++){
             //     if (arr[i] < 0) {
             //         if (-1*arr[i] > max) {
             //             max = -1*arr[i];
@@ -2048,7 +2048,7 @@ void* min_a(struct array* array) {
             // double complex* arr = (double complex*)array->array;
 
             // double complex max = arr[0];
-            // for (size_t i = 1; i < getarraySize(array); i++){
+            // for (size_t i = 1; i < getArraySize(array); i++){
             //     if (arr[i] > max) {
             //         max = arr[i];
             //     }
@@ -3583,9 +3583,9 @@ struct array* dot_a(struct array* arr_1, struct array* arr_2) {
 /**
  * Generates a diagonal matrix from an 1d array
  * RETURNS:
- *  - array struct pointer
+ *  - Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
  *  - slice array 
 */
 struct array* diag_a(struct array* array, int* slice) {
@@ -3830,11 +3830,11 @@ struct array* diag_a(struct array* array, int* slice) {
 }
 
 /**
- * This will return a array struct pointer with the given slice parameters
+ * This will return a Array struct pointer with the given slice parameters
  * RETURNS:
- *  - array struct pointer
+ *  - Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
  *  - slice array 
 */
 struct array* slice_a(struct array* array, int* slice) {
@@ -4174,11 +4174,11 @@ struct array* slice_a(struct array* array, int* slice) {
 }
 
 /**
- * Computing the conjugate of an array  +
+ * Computing the conjugate of an Array  +
  * RETURNS:
- *  - Conjugate array struct pointer
+ *  - Conjugate Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
 */
 struct array* conjugate_a(struct array* array) {
     if (*array->type == COMPLEX) {
@@ -4198,11 +4198,11 @@ struct array* conjugate_a(struct array* array) {
 }
 
 /**
- * Print shape of array
+ * Print shape of Array
  * RETURNS:
  *  - NONE
  * INPUTS: 
- *  - array struct pointer
+ *  - Array struct pointer
 */
 void print_shape_a(struct array* array) {
     switch (*array->num_dimensions) {
@@ -4230,7 +4230,7 @@ void print_shape_a(struct array* array) {
  * RETURNS:
  *  - None
  * INPUTS: 
- *  - array struct pointer
+ *  - Array struct pointer
  *  - Value pointer
 */
 void fill_diagonal_a(struct array* array, void* value) {
@@ -4286,7 +4286,7 @@ void fill_diagonal_a(struct array* array, void* value) {
  * RETURNS:
  *  - norm value pointer.
  * INPUTS: 
- *  - array struct pointer.
+ *  - Array struct pointer.
  * NOTE:
  *  - Need to free the return value.
  *  - If Complex, return value is double.
@@ -4364,7 +4364,7 @@ void* norm_a(struct array* array) {
  * RETURNS:
  *  - mean value pointer.
  * INPUTS: 
- *  - array struct pointer.
+ *  - Array struct pointer.
  * NOTE:
  *  - Need to free the return value.
  *  - If Complex, return value is double.
@@ -4442,7 +4442,7 @@ void* mean_a(struct array* array) {
  * RETURNS:
  *  - norm value pointer.
  * INPUTS: 
- *  - array struct pointer.
+ *  - Array struct pointer.
  * NOTE:
  *  - Need to free the return value.
  *  - If Complex, return value is double.
@@ -4547,9 +4547,9 @@ void* std_a(struct array* array) {
 /**
  * This fuction does the outer product of two 1d arrays
  * RETURNS:
- *  - array struct pointer
+ *  - Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
 */
 struct array* outer_a(struct array* array1, struct array* array2) {
     if (*array1->num_dimensions != 1 || *array2->num_dimensions != 1) {
@@ -4617,9 +4617,9 @@ struct array* outer_a(struct array* array1, struct array* array2) {
 /**
  * Hadamard Inverse of a complex matrix
  * RETURNS:
- *  - array struct pointer
+ *  - Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
 */
 struct array* hadamard_inverse_a(struct array* array) {
     
@@ -4643,9 +4643,9 @@ struct array* hadamard_inverse_a(struct array* array) {
 /**
  * Diagonal Hadamard Inverse of a complex matrix
  * RETURNS:
- *  - array struct pointer
+ *  - Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
 */
 struct array* diag_hadamard_inverse_a(struct array* array) {
     if (*array->num_dimensions != 2) {
@@ -5308,7 +5308,7 @@ int index_of_element_a(struct array* array, void* element) {
 }
 
 /**
- * This function calculates the svd of a 2d array.
+ * This function calculates the svd of a 2d Array.
  * Jacobi SVD algorithm from scratch 
  * see github.com/ampl/gsl/blob/master/linalg/svd.c
  * RETURNS:
@@ -5407,7 +5407,7 @@ struct array** svd_a(struct array* M) {
 }
 
 /**
- * This function calculates the pseudo inverse of a 2d array.
+ * This function calculates the pseudo inverse of a 2d Array.
  * RETURNS:
  *  - struct array* array
  * INPUTS:

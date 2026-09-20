@@ -271,7 +271,7 @@ void create_vis_mat(struct Simulator* simulator, int* w_m_include, bool noise);
 /**
  * Determines the power in signal
  * RETURNS:
- *  - array struct pointer = contains 
+ *  - Array struct pointer = contains 
  *      {D_pow - The power in each baseline,
  *       d_pow1 - Average power over entire matrix,
  *       d_pow2 - Average of D_pow over baselines}

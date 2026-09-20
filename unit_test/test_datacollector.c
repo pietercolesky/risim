@@ -9,8 +9,6 @@
 #endif
 #define SPEED_OF_LIGHT 299792458.0
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 void test_new_dc() {
     double h_min = -1;
@@ -249,7 +247,7 @@ void test_get_all_gain_dc() {
 
     solve_G_StEFCal_Lambda(calibrator, &(size_t){1000}, &(double){0.00001}, &(double){0}, &(double){1});
 
-    struct Jaggedarray* resized_all_gains = get_all_gain_dc(calibrator->datacollector);
+    struct JaggedArray* resized_all_gains = get_all_gain_dc(calibrator->datacollector);
 
     print_ja(resized_all_gains);
 
@@ -260,14 +258,14 @@ void test_get_all_gain_dc() {
 }
 
 //Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-//     // RUN_TEST(test_new_dc);
-//     // RUN_TEST(test_add_iteration_dc);
-//     // RUN_TEST(test_add_gain_dc);
-//     // RUN_TEST(test_add_all_gain_dc);
-//     // RUN_TEST(test_add_damping_g_dc);
-//     // RUN_TEST(test_add_damping_g_old_dc);
-//     RUN_TEST(test_get_all_gain_dc);
-//     return UNITY_END();
-// }   
+int run_datacollector_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_new_dc);
+    RUN_TEST(test_add_iteration_dc);
+    RUN_TEST(test_add_gain_dc);
+    RUN_TEST(test_add_all_gain_dc);
+    RUN_TEST(test_add_damping_g_dc);
+    RUN_TEST(test_add_damping_g_old_dc);
+    RUN_TEST(test_get_all_gain_dc);
+    return UNITY_END();
+}   

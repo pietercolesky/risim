@@ -654,7 +654,7 @@ static void UnityPrintExpectedAndActualStringsLen(const char* expected,
  *-----------------------------------------------*/
 
 /*-----------------------------------------------*/
-static int UnityIsOnearrayNull(UNITY_INTERNAL_PTR expected,
+static int UnityIsOneArrayNull(UNITY_INTERNAL_PTR expected,
                                UNITY_INTERNAL_PTR actual,
                                const UNITY_LINE_TYPE lineNumber,
                                const char* msg)
@@ -778,7 +778,7 @@ do {                                       \
 } while (0)
 
 /*-----------------------------------------------*/
-void UnityAssertEqualIntarray(UNITY_INTERNAL_PTR expected,
+void UnityAssertEqualIntArray(UNITY_INTERNAL_PTR expected,
                               UNITY_INTERNAL_PTR actual,
                               const UNITY_UINT32 num_elements,
                               const char* msg,
@@ -794,7 +794,7 @@ void UnityAssertEqualIntarray(UNITY_INTERNAL_PTR expected,
 
     if (num_elements == 0)
     {
-#ifdef UNITY_COMPARE_PTRS_ON_ZERO_array
+#ifdef UNITY_COMPARE_PTRS_ON_ZERO_ARRAY
         UNITY_TEST_ASSERT_EQUAL_PTR(expected, actual, lineNumber, msg);
 #else
         UnityPrintPointlessAndBail();
@@ -806,7 +806,7 @@ void UnityAssertEqualIntarray(UNITY_INTERNAL_PTR expected,
         return; /* Both are NULL or same pointer */
     }
 
-    if (UnityIsOnearrayNull(expected, actual, lineNumber, msg))
+    if (UnityIsOneArrayNull(expected, actual, lineNumber, msg))
     {
         UNITY_FAIL_AND_BAIL;
     }
@@ -884,7 +884,7 @@ void UnityAssertEqualIntarray(UNITY_INTERNAL_PTR expected,
             UNITY_FAIL_AND_BAIL;
         }
         /* Walk through array by incrementing the pointers */
-        if (flags == UNITY_array_TO_array)
+        if (flags == UNITY_ARRAY_TO_ARRAY)
         {
             expected = (UNITY_INTERNAL_PTR)((const char*)expected + increment);
         }
@@ -930,7 +930,7 @@ static int UnityFloatsWithin(UNITY_FLOAT delta, UNITY_FLOAT expected, UNITY_FLOA
 }
 
 /*-----------------------------------------------*/
-void UnityAssertWithinFloatarray(const UNITY_FLOAT delta,
+void UnityAssertWithinFloatArray(const UNITY_FLOAT delta,
                                  UNITY_PTR_ATTRIBUTE const UNITY_FLOAT* expected,
                                  UNITY_PTR_ATTRIBUTE const UNITY_FLOAT* actual,
                                  const UNITY_UINT32 num_elements,
@@ -948,7 +948,7 @@ void UnityAssertWithinFloatarray(const UNITY_FLOAT delta,
 
     if (elements == 0)
     {
-#ifdef UNITY_COMPARE_PTRS_ON_ZERO_array
+#ifdef UNITY_COMPARE_PTRS_ON_ZERO_ARRAY
         UNITY_TEST_ASSERT_EQUAL_PTR(expected, actual, lineNumber, msg);
 #else
         UnityPrintPointlessAndBail();
@@ -957,7 +957,7 @@ void UnityAssertWithinFloatarray(const UNITY_FLOAT delta,
 
     if (UNITY_IS_INF(in_delta))
     {
-        return; /* arrays will be force equal with infinite delta */
+        return; /* Arrays will be force equal with infinite delta */
     }
 
     if (UNITY_IS_NAN(in_delta))
@@ -971,7 +971,7 @@ void UnityAssertWithinFloatarray(const UNITY_FLOAT delta,
         return; /* Both are NULL or same pointer */
     }
 
-    if (UnityIsOnearrayNull((UNITY_INTERNAL_PTR)expected, (UNITY_INTERNAL_PTR)actual, lineNumber, msg))
+    if (UnityIsOneArrayNull((UNITY_INTERNAL_PTR)expected, (UNITY_INTERNAL_PTR)actual, lineNumber, msg))
     {
         UNITY_FAIL_AND_BAIL;
     }
@@ -1001,7 +1001,7 @@ void UnityAssertWithinFloatarray(const UNITY_FLOAT delta,
             UnityAddMsgIfSpecified(msg);
             UNITY_FAIL_AND_BAIL;
         }
-        if (flags == UNITY_array_TO_array)
+        if (flags == UNITY_ARRAY_TO_ARRAY)
         {
             ptr_expected++;
         }
@@ -1158,7 +1158,7 @@ static int UnityDoublesWithin(UNITY_DOUBLE delta, UNITY_DOUBLE expected, UNITY_D
 }
 
 /*-----------------------------------------------*/
-void UnityAssertWithinDoublearray(const UNITY_DOUBLE delta,
+void UnityAssertWithinDoubleArray(const UNITY_DOUBLE delta,
                                   UNITY_PTR_ATTRIBUTE const UNITY_DOUBLE* expected,
                                   UNITY_PTR_ATTRIBUTE const UNITY_DOUBLE* actual,
                                   const UNITY_UINT32 num_elements,
@@ -1176,7 +1176,7 @@ void UnityAssertWithinDoublearray(const UNITY_DOUBLE delta,
 
     if (elements == 0)
     {
-#ifdef UNITY_COMPARE_PTRS_ON_ZERO_array
+#ifdef UNITY_COMPARE_PTRS_ON_ZERO_ARRAY
         UNITY_TEST_ASSERT_EQUAL_PTR(expected, actual, lineNumber, msg);
 #else
         UnityPrintPointlessAndBail();
@@ -1185,7 +1185,7 @@ void UnityAssertWithinDoublearray(const UNITY_DOUBLE delta,
 
     if (UNITY_IS_INF(in_delta))
     {
-        return; /* arrays will be force equal with infinite delta */
+        return; /* Arrays will be force equal with infinite delta */
     }
 
     if (UNITY_IS_NAN(in_delta))
@@ -1199,7 +1199,7 @@ void UnityAssertWithinDoublearray(const UNITY_DOUBLE delta,
         return; /* Both are NULL or same pointer */
     }
 
-    if (UnityIsOnearrayNull((UNITY_INTERNAL_PTR)expected, (UNITY_INTERNAL_PTR)actual, lineNumber, msg))
+    if (UnityIsOneArrayNull((UNITY_INTERNAL_PTR)expected, (UNITY_INTERNAL_PTR)actual, lineNumber, msg))
     {
         UNITY_FAIL_AND_BAIL;
     }
@@ -1229,7 +1229,7 @@ void UnityAssertWithinDoublearray(const UNITY_DOUBLE delta,
             UnityAddMsgIfSpecified(msg);
             UNITY_FAIL_AND_BAIL;
         }
-        if (flags == UNITY_array_TO_array)
+        if (flags == UNITY_ARRAY_TO_ARRAY)
         {
             ptr_expected++;
         }
@@ -1424,7 +1424,7 @@ void UnityAssertNumbersWithin(const UNITY_UINT delta,
 }
 
 /*-----------------------------------------------*/
-void UnityAssertNumbersarrayWithin(const UNITY_UINT delta,
+void UnityAssertNumbersArrayWithin(const UNITY_UINT delta,
                                    UNITY_INTERNAL_PTR expected,
                                    UNITY_INTERNAL_PTR actual,
                                    const UNITY_UINT32 num_elements,
@@ -1441,7 +1441,7 @@ void UnityAssertNumbersarrayWithin(const UNITY_UINT delta,
 
     if (num_elements == 0)
     {
-#ifdef UNITY_COMPARE_PTRS_ON_ZERO_array
+#ifdef UNITY_COMPARE_PTRS_ON_ZERO_ARRAY
         UNITY_TEST_ASSERT_EQUAL_PTR(expected, actual, lineNumber, msg);
 #else
         UnityPrintPointlessAndBail();
@@ -1453,7 +1453,7 @@ void UnityAssertNumbersarrayWithin(const UNITY_UINT delta,
         return; /* Both are NULL or same pointer */
     }
 
-    if (UnityIsOnearrayNull(expected, actual, lineNumber, msg))
+    if (UnityIsOneArrayNull(expected, actual, lineNumber, msg))
     {
         UNITY_FAIL_AND_BAIL;
     }
@@ -1579,7 +1579,7 @@ void UnityAssertNumbersarrayWithin(const UNITY_UINT delta,
             UNITY_FAIL_AND_BAIL;
         }
         /* Walk through array by incrementing the pointers */
-        if (flags == UNITY_array_TO_array)
+        if (flags == UNITY_ARRAY_TO_ARRAY)
         {
             expected = (UNITY_INTERNAL_PTR)((const char*)expected + increment);
         }
@@ -1667,7 +1667,7 @@ void UnityAssertEqualStringLen(const char* expected,
 }
 
 /*-----------------------------------------------*/
-void UnityAssertEqualStringarray(UNITY_INTERNAL_PTR expected,
+void UnityAssertEqualStringArray(UNITY_INTERNAL_PTR expected,
                                  const char** actual,
                                  const UNITY_UINT32 num_elements,
                                  const char* msg,
@@ -1684,7 +1684,7 @@ void UnityAssertEqualStringarray(UNITY_INTERNAL_PTR expected,
     /* if no elements, it's an error */
     if (num_elements == 0)
     {
-#ifdef UNITY_COMPARE_PTRS_ON_ZERO_array
+#ifdef UNITY_COMPARE_PTRS_ON_ZERO_ARRAY
         UNITY_TEST_ASSERT_EQUAL_PTR(expected, actual, lineNumber, msg);
 #else
         UnityPrintPointlessAndBail();
@@ -1696,12 +1696,12 @@ void UnityAssertEqualStringarray(UNITY_INTERNAL_PTR expected,
         return; /* Both are NULL or same pointer */
     }
 
-    if (UnityIsOnearrayNull((UNITY_INTERNAL_PTR)expected, (UNITY_INTERNAL_PTR)actual, lineNumber, msg))
+    if (UnityIsOneArrayNull((UNITY_INTERNAL_PTR)expected, (UNITY_INTERNAL_PTR)actual, lineNumber, msg))
     {
         UNITY_FAIL_AND_BAIL;
     }
 
-    if (flags != UNITY_array_TO_array)
+    if (flags != UNITY_ARRAY_TO_ARRAY)
     {
         expd = (const char*)expected;
     }
@@ -1709,7 +1709,7 @@ void UnityAssertEqualStringarray(UNITY_INTERNAL_PTR expected,
     do
     {
         act = actual[j];
-        if (flags == UNITY_array_TO_array)
+        if (flags == UNITY_ARRAY_TO_ARRAY)
         {
             expd = ((const char* const*)expected)[j];
         }
@@ -1767,7 +1767,7 @@ void UnityAssertEqualMemory(UNITY_INTERNAL_PTR expected,
 
     if (elements == 0)
     {
-#ifdef UNITY_COMPARE_PTRS_ON_ZERO_array
+#ifdef UNITY_COMPARE_PTRS_ON_ZERO_ARRAY
         UNITY_TEST_ASSERT_EQUAL_PTR(expected, actual, lineNumber, msg);
 #else
         UnityPrintPointlessAndBail();
@@ -1783,7 +1783,7 @@ void UnityAssertEqualMemory(UNITY_INTERNAL_PTR expected,
         return; /* Both are NULL or same pointer */
     }
 
-    if (UnityIsOnearrayNull(expected, actual, lineNumber, msg))
+    if (UnityIsOneArrayNull(expected, actual, lineNumber, msg))
     {
         UNITY_FAIL_AND_BAIL;
     }
@@ -1814,7 +1814,7 @@ void UnityAssertEqualMemory(UNITY_INTERNAL_PTR expected,
             ptr_exp++;
             ptr_act++;
         }
-        if (flags == UNITY_array_TO_VAL)
+        if (flags == UNITY_ARRAY_TO_VAL)
         {
             ptr_exp = (UNITY_PTR_ATTRIBUTE const unsigned char*)expected;
         }

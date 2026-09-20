@@ -1,14 +1,13 @@
 #include "unity.h"
 #include "simulator.h"
 #include "calibrator.h"
+#include <stdlib.h>
 
 #ifndef M_PI
 #define M_PI (3.14159265358979323846264338327950288)
 #endif
 #define SPEED_OF_LIGHT 299792458.0
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 void test_simulator_initialization_structure() {
     struct Simulator* simulator = newSimulatorStructure();
@@ -531,6 +530,11 @@ void test_save_to_file_s(){
     create_vis_mat(simulator, NULL, false);
     create_vis_mat(simulator, NULL, true);
 
+    /* save_to_file_s stops the process when the target already exists, so clear
+     * anything an earlier run left behind and keep this test repeatable. */
+    if (system("rm -rf ./simulators") != 0) {
+        TEST_FAIL_MESSAGE("could not clear ./simulators");
+    }
     create_directory("./simulators");
     save_to_file_s(simulator, "./simulators");
 
@@ -565,25 +569,27 @@ void test_read_and_run() {
 }
 
 // Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-//     // RUN_TEST(test_simulator_initialization_structure);
-//     // RUN_TEST(test_simulator_initialize);
-//     // RUN_TEST(test_initialize_simulator_default);
-//     // RUN_TEST(test_generate_antenna_layout_hex);
-//     // RUN_TEST(test_generate_antenna_layout_sqr);
-//     // RUN_TEST(test_generate_antenna_layout_reg);
-//     // RUN_TEST(test_plot_ant);
-//     // RUN_TEST(test_uv_tracks);
-//     // RUN_TEST(test_plot_uv_coverage);
-//     // RUN_TEST(test_create_point_sources);
-//     // RUN_TEST(test_create_antenna_gains);
-//     // RUN_TEST(test_create_vis_mat_no_error);
-//     // RUN_TEST(test_det_power_of_signal);
-//     // RUN_TEST(test_create_vis_mat_with_error);
-//     // RUN_TEST(test_plot_visibilities);
-//     // RUN_TEST(test_save_to_file_s);
-//     // RUN_TEST(test_read_from_file_s);
-//     RUN_TEST(test_read_and_run);
-//     return UNITY_END();
-// }   
+int run_simulator_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_simulator_initialization_structure);
+    RUN_TEST(test_simulator_initialize);
+    RUN_TEST(test_initialize_simulator_default);
+    RUN_TEST(test_generate_antenna_layout_hex);
+    RUN_TEST(test_generate_antenna_layout_sqr);
+    RUN_TEST(test_generate_antenna_layout_reg);
+    /* These call out to gnuplot, so they only run where gnuplot is
+     * installed and are left out of the default `make test` run. */
+    // RUN_TEST(test_plot_ant);
+    RUN_TEST(test_uv_tracks);
+    // RUN_TEST(test_plot_uv_coverage);
+    RUN_TEST(test_create_point_sources);
+    RUN_TEST(test_create_antenna_gains);
+    RUN_TEST(test_create_vis_mat_no_error);
+    RUN_TEST(test_det_power_of_signal);
+    RUN_TEST(test_create_vis_mat_with_error);
+    // RUN_TEST(test_plot_visibilities);
+    RUN_TEST(test_save_to_file_s);
+    RUN_TEST(test_read_from_file_s);
+    // RUN_TEST(test_read_and_run);   /* plots, so needs gnuplot */
+    return UNITY_END();
+}   

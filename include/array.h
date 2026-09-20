@@ -1,6 +1,6 @@
 /**
   * @file array.h
-  * @description A definition of functions offered by the array
+  * @description A definition of functions offered by the Array
   */
 
 #include <stdio.h>
@@ -9,11 +9,11 @@
 #include <pthread.h>
 #include <stdbool.h>
 
-#ifndef _array_H
-#define _array_H
+#ifndef _ARRAY_H
+#define _ARRAY_H
 
 /**
- * Generic array struct
+ * Generic Array struct
 */
 struct array {
     void* array;
@@ -109,22 +109,22 @@ size_t get_size_a(struct array* array);
 struct array* linspace_a(void* start, void* end, size_t* num_points, enum DataType* type);
 
 /**
- * array multiplied by constant +
+ * Array multiplied by constant +
 */
 struct array* multiply_constant_a(struct array* array, void* constant, enum DataType* constant_type);
 
 /**
- * array divised by constant  +
+ * Array divised by constant  +
 */
 struct array* division_constant_a(struct array* array, void* constant, enum DataType* constant_type);
 
 /**
- * array minus by constant +
+ * Array minus by constant +
 */
 struct array* minus_constant_a(struct array* array, void* constant, enum DataType* constant_type);
 
 /**
- * array addition by constant +
+ * Array addition by constant +
 */
 struct array* addition_constant_a(struct array* array, void* constant, enum DataType* constant_type);
 
@@ -163,47 +163,47 @@ struct array* dot_a(struct array* arr_1, struct array* arr_2);
 /**
  * Generates a diagonal matrix from an 1d array +
  * RETURNS:
- *  - array struct pointer
+ *  - Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
  *  - slice array 
 */
 struct array* diag_a(struct array* array, int* slice);
 
 /**
- * This will return a array struct pointer with the given slice parameters  +
+ * This will return a Array struct pointer with the given slice parameters  +
  * RETURNS:
- *  - array struct pointer
+ *  - Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
  *  - slice array 
 */
 struct array* slice_a(struct array* array, int* slice);
 
 /**
- * Computing the conjugate of an array  +
+ * Computing the conjugate of an Array  +
  * RETURNS:
- *  - Conjugate array struct pointer
+ *  - Conjugate Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
 */
 struct array* conjugate_a(struct array* array);
 
 /**
- * Print shape of array
+ * Print shape of Array
  * RETURNS:
  *  - NONE
  * INPUTS: 
- *  - array struct pointer
+ *  - Array struct pointer
 */
 void print_shape_a(struct array* array);
 
 /**
  * Fill the diagonal of array with desired value +
  * RETURNS:
- *  - Diagonally filled array
+ *  - Diagonally filled Array
  * INPUTS: 
- *  - array struct pointer
+ *  - Array struct pointer
  *  - Value pointer
 */
 void fill_diagonal_a(struct array* array, void* value);
@@ -213,7 +213,7 @@ void fill_diagonal_a(struct array* array, void* value);
  * RETURNS:
  *  - norm value pointer
  * INPUTS: 
- *  - array struct pointer
+ *  - Array struct pointer
  * NOTE:
  *  - Need to free the return value.
  *  - If Complex, return value is double.
@@ -225,7 +225,7 @@ void* norm_a(struct array* array);
  * RETURNS:
  *  - mean value pointer.
  * INPUTS: 
- *  - array struct pointer.
+ *  - Array struct pointer.
  * NOTE:
  *  - Need to free the return value.
  *  - If Complex, return value is double.
@@ -237,7 +237,7 @@ void* mean_a(struct array* array);
  * RETURNS:
  *  - norm value pointer.
  * INPUTS: 
- *  - array struct pointer.
+ *  - Array struct pointer.
  * NOTE:
  *  - Need to free the return value.
  *  - If Complex, return value is double.
@@ -247,27 +247,27 @@ void* std_a(struct array* array);
 /**
  * This fuction does the outer product of two 1d arrays +
  * RETURNS:
- *  - array struct pointer
+ *  - Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
 */
 struct array* outer_a(struct array* array1, struct array* array2);
 
 /**
  * Hadamard Inverse of a complex matrix  +
  * RETURNS:
- *  - array struct pointer
+ *  - Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
 */
 struct array* hadamard_inverse_a(struct array* array);
 
 /**
  * Diagonal Hadamard Inverse of a complex matrix +
  * RETURNS:
- *  - array struct pointer
+ *  - Array struct pointer
  * INPUTS:
- *  - array struct pointer
+ *  - Array struct pointer
 */
 struct array* diag_hadamard_inverse_a(struct array* array);
 
@@ -385,7 +385,7 @@ bool contains_element_a(struct array* array, void* element);
 int index_of_element_a(struct array* array, void* element);
 
 /**
- * This function calculates the svd of a 2d array.
+ * This function calculates the svd of a 2d Array.
  * RETURNS:
  *  - struct array* U, s, Vh
  * INPUTS:
@@ -394,7 +394,7 @@ int index_of_element_a(struct array* array, void* element);
 struct array** svd_a(struct array* array);
 
 /**
- * This function calculates the pseudo inverse of a 2d array.
+ * This function calculates the pseudo inverse of a 2d Array.
  * RETURNS:
  *  - struct array* array
  * INPUTS:

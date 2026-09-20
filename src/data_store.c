@@ -164,6 +164,8 @@ struct DataStore* new_ds(char* identity, char* directory, double* h_min, double*
     data_store->all_gains_dcon = NULL;
     data_store->damping_g_dcon = NULL;
     data_store->damping_g_old_dcon = NULL;
+    data_store->fixed_alpha = NULL;
+    data_store->fixed_b = NULL;
 
     return data_store;
 }
@@ -243,7 +245,13 @@ void free_ds(struct DataStore* data_store) {
             free_dcon(data_store->damping_g_dcon); 
         }
         if (data_store->damping_g_old_dcon != NULL) {
-            free_dcon(data_store->damping_g_old_dcon); 
+            free_dcon(data_store->damping_g_old_dcon);
+        }
+        if (data_store->fixed_alpha != NULL) {
+            free(data_store->fixed_alpha);
+        }
+        if (data_store->fixed_b != NULL) {
+            free(data_store->fixed_b);
         }
 
         free(data_store);
@@ -307,8 +315,8 @@ size_t start_ds(struct DataStore* data_store) {
     // create_vis_mat(simulator, NULL, false);
     char filename [256]; 
     //snprintf(filename, sizeof(filename), "./data/simulators/sim_seed_%u_order_%d_snr_%.0lf_maxamp_%.0lf.sconfig", *data_store->seed, *data_store->order, *data_store->snr, *data_store->max_amp);
-    //snprintf(filename, sizeof(filename), "./simulators/sim_seed_%u_order_%d_snr_%.0lf_maxamp_%.0lf.sconfig", *data_store->seed, *data_store->order, *data_store->snr, *data_store->max_amp);
-    snprintf(filename, sizeof(filename), "/media/pieter-colesky/Expansion/simulators/sim_seed_%u_order_%d_snr_%.0lf_maxamp_%.0lf.sconfig", *data_store->seed, *data_store->order, *data_store->snr, *data_store->max_amp);
+    // snprintf(filename, sizeof(filename), "../data_order_%d/simulators/sim_seed_%u_order_%d_snr_%.0lf_maxamp_%.0lf.sconfig", *data_store->order, *data_store->seed, *data_store->order, *data_store->snr, *data_store->max_amp);
+    snprintf(filename, sizeof(filename), "/media/colesky/MSC_BACKUP/simulators/sim_seed_%u_order_%d_snr_%.0lf_maxamp_%.0lf.sconfig", *data_store->seed, *data_store->order, *data_store->snr, *data_store->max_amp);
     //snprintf(filename, sizeof(filename), "/media/pieter/MSC_BACKUP/simulators/sim_seed_%u_order_%d_snr_%.0lf_maxamp_%.0lf.sconfig", *data_store->seed, *data_store->order, *data_store->snr, *data_store->max_amp);
     struct Simulator* simulator = read_from_file_s(filename);
     struct Calibrator* calibrator = new_c(simulator);
@@ -364,6 +372,18 @@ size_t start_ds(struct DataStore* data_store) {
                 for (size_t j = 0; j < *data_store->grid_length; j++) {
                     if (index >= progress && index < *data_store->gains_dcon->size) {
                         switch (*data_store->algorithm_type) {
+                            case GRADIENT_DESENT_MOMENTUM: {
+                                log_not_implemented(__FILE__, __LINE__);
+                                break;
+                            }
+                            case NESTROVS_ACCELERATED_GRADIENT: {
+                                log_not_implemented(__FILE__, __LINE__);
+                                break;
+                            }
+                            case RMSPROP: {
+                                log_not_implemented(__FILE__, __LINE__);
+                                break;
+                            }
                             case LEVENBERG_MARQUARDT: {
                                 double l1 = *(double*){get_element_a(linspace_h1, (size_t[]){i})};
                                 double l2 = *(double*){get_element_a(linspace_h2, (size_t[]){j})};
@@ -384,6 +404,212 @@ size_t start_ds(struct DataStore* data_store) {
                                 //filename
                                 char filename[256];
                                 sprintf(filename, "levenberg_marquardt_%ld_%ld",i,j);
+                                save_data_to_structure_ds(data_store, calibrator, &index, filename);
+                                break;
+                            }
+                            case LEVENBERG_MARQUARDT_DIAGONAL_HESSIAN_LAMBDA: {
+                                double l1 = *(double*){get_element_a(linspace_h1, (size_t[]){i})};
+                                double l2 = *(double*){get_element_a(linspace_h2, (size_t[]){j})};
+
+                                if (PRINT_DATA) {
+                                    printf("LMDHL h1 = %lf, h2 = %lf\n", l1, l2);
+                                }
+                                // //solve
+                                solve_G_LM_Diag_Hessian_Lambda(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1, &l2);
+                                // //extract data
+                                double* average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                                set_element_a(results_averages, (size_t[]){i,j}, average_iterations);
+                                if (PRINT_DATA) {
+                                    printf("Average Iterations = %f\n", *average_iterations);
+                                }
+                                free(average_iterations);
+                                //Saving the collected data
+                                char filename[256];
+                                sprintf(filename, "lm_diagonal_hessian_lambda_%ld_%ld",i,j);
+                                save_data_to_structure_ds(data_store, calibrator, &index, filename);
+                                break;
+                            }
+                            case STEFCAL_LAMBDA: {
+                                double l1 = *(double*){get_element_a(linspace_h1, (size_t[]){i})};
+                                double l2 = *(double*){get_element_a(linspace_h2, (size_t[]){j})};
+
+                                if (PRINT_DATA) {
+                                    printf("StEFCal Lambda h1 = %lf, h2 = %lf\n", l1, l2);
+                                }
+                                //solve
+                                solve_G_StEFCal_Lambda(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1, &l2);
+                                //extract data
+                                double* average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                                set_element_a(results_averages, (size_t[]){i,j}, average_iterations);
+                                if (PRINT_DATA) {
+                                    printf("Average Iterations = %f\n", *average_iterations);
+                                }
+                                free(average_iterations);
+
+                                //filename
+                                char filename[256];
+                                sprintf(filename, "stefcal_lambda_%ld_%ld",i,j);
+                                save_data_to_structure_ds(data_store, calibrator, &index, filename);
+                                break;
+                            }
+                            case LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2: {
+                                double l1 = *(double*){get_element_a(linspace_h1, (size_t[]){i})};
+                                double l2 = *(double*){get_element_a(linspace_h2, (size_t[]){j})};
+
+                                if (PRINT_DATA) {
+                                    printf("Levenberg Marquardt Non Adaptive l1 l2: h1 = %lf, h2 = %lf\n", l1, l2);
+                                }
+                                //solve
+                                solve_G_LM_Non_Adaptive_l1_l2(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1, &l2);
+                                //extract data
+                                double* average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                                set_element_a(results_averages, (size_t[]){i,j}, average_iterations);
+                                if (PRINT_DATA) {
+                                    printf("Average Iterations = %f\n", *average_iterations);
+                                }
+                                free(average_iterations);
+
+                                //filename
+                                char filename[256];
+                                sprintf(filename, "levenberg_marquardt_non_adaptive_l1_l2_%ld_%ld",i,j);
+                                save_data_to_structure_ds(data_store, calibrator, &index, filename);
+                                break;
+                            }
+                            case STEFCAL_LM_LAMBDA: {
+                                double l1 = *(double*){get_element_a(linspace_h1, (size_t[]){i})};
+                                double l2 = *(double*){get_element_a(linspace_h2, (size_t[]){j})};
+
+                                //solve
+                                if (l1 < 0 || l2 < 0) {
+                                    if (PRINT_DATA) {
+                                        printf("LM Lambda h1 = %lf, h2 = %lf\n", l1, l2);
+                                    }
+                                    solve_G_LM_Diag_Hessian_Lambda(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1, &l2);
+                                } else {
+                                    if (PRINT_DATA) {
+                                        printf("StEFCal Lambda h1 = %lf, h2 = %lf\n", l1, l2);
+                                    }
+                                    solve_G_StEFCal_Lambda(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1, &l2);
+                                }
+                                
+                                //extract data
+                                double* average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                                set_element_a(results_averages, (size_t[]){i,j}, average_iterations);
+                                if (PRINT_DATA) {
+                                    printf("Average Iterations = %f\n", *average_iterations);
+                                }
+                                free(average_iterations);
+
+                                //filename
+                                char filename[256];
+                                sprintf(filename, "stefcal_lm_lambda_%ld_%ld",i,j);
+                                save_data_to_structure_ds(data_store, calibrator, &index, filename);
+                                break;
+                            }
+                            case STEFCAL_IMPROVED: {
+                                double l1 = *(double*){get_element_a(linspace_h1, (size_t[]){i})};
+                                double l2 = *(double*){get_element_a(linspace_h2, (size_t[]){j})};
+
+                                if (PRINT_DATA) {
+                                    printf("StEFCal Improved h1 = %lf, h2 = %lf\n", l1, l2);
+                                }
+                                //solve
+                                solve_G_StEFCal_improved(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1, &l2);
+                                //extract data
+                                double* average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                                set_element_a(results_averages, (size_t[]){i,j}, average_iterations);
+                                if (PRINT_DATA) {
+                                    printf("Average Iterations = %f\n", *average_iterations);
+                                }
+                                free(average_iterations);
+
+                                //filename
+                                char filename[256];
+                                sprintf(filename, "stefcal_improved_%ld_%ld",i,j);
+                                save_data_to_structure_ds(data_store, calibrator, &index, filename);
+                                break;
+                            }
+                            case ADAM_FIXED_ALPHA: {
+                                if (data_store->fixed_alpha == NULL) {
+                                    log_null_value(__FILE__, __LINE__);
+                                    break;
+                                }
+                                double B1 = *(double*){get_element_a(linspace_h1, (size_t[]){i})};
+                                double B2 = *(double*){get_element_a(linspace_h2, (size_t[]){j})};
+                                double alpha = *data_store->fixed_alpha;
+
+                                if (PRINT_DATA) {
+                                    printf("ADAM Fixed Alpha alpha = %lf, B1 = %lf, B2 = %lf\n", alpha, B1, B2);
+                                }
+                                //solve — matches start_single_pso's ADAM case
+                                solve_G_ADAM_without_r(calibrator, &(size_t){IMAX}, &(double){TAU}, &alpha, &B1, &B2);
+                                //extract data
+                                double* average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                                set_element_a(results_averages, (size_t[]){i,j}, average_iterations);
+                                if (PRINT_DATA) {
+                                    printf("Average Iterations = %f\n", *average_iterations);
+                                }
+                                free(average_iterations);
+
+                                //filename
+                                char filename[256];
+                                sprintf(filename, "adam_fixed_alpha_%ld_%ld",i,j);
+                                save_data_to_structure_ds(data_store, calibrator, &index, filename);
+                                break;
+                            }
+                            case STEFCAL_STOCHASTIC_ADAPTIVE: {
+                                double lam = *(double*){get_element_a(linspace_h1, (size_t[]){i})};
+                                double b0_d = *(double*){get_element_a(linspace_h2, (size_t[]){j})};
+                                size_t b0 = (size_t)round(b0_d);
+                                if (b0 < 2) b0 = 2;
+                                if (b0 > *calibrator->N - 1) b0 = *calibrator->N - 1;
+
+                                if (PRINT_DATA) {
+                                    printf("Stochastic-adaptive StEFCal lam = %lf, b0 = %ld\n", lam, b0);
+                                }
+                                //solve
+                                solve_G_StEFCal_stochastic_adaptive(calibrator, &(size_t){IMAX}, &(double){TAU}, &lam, &b0, &(int){1});
+                                //extract data
+                                double* average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                                set_element_a(results_averages, (size_t[]){i,j}, average_iterations);
+                                if (PRINT_DATA) {
+                                    printf("Average Iterations = %f\n", *average_iterations);
+                                }
+                                free(average_iterations);
+
+                                //filename
+                                char filename[256];
+                                sprintf(filename, "stochastic_adaptive_%ld_%ld",i,j);
+                                save_data_to_structure_ds(data_store, calibrator, &index, filename);
+                                break;
+                            }
+                            case STEFCAL_STOCHASTIC_FIXED_B: {
+                                if (data_store->fixed_b == NULL) {
+                                    log_null_value(__FILE__, __LINE__);
+                                    break;
+                                }
+                                double l1 = *(double*){get_element_a(linspace_h1, (size_t[]){i})};
+                                double l2 = *(double*){get_element_a(linspace_h2, (size_t[]){j})};
+                                size_t b0 = (size_t)round(*data_store->fixed_b);
+                                if (b0 < 2) b0 = 2;
+                                if (b0 > *calibrator->N - 1) b0 = *calibrator->N - 1;
+
+                                if (PRINT_DATA) {
+                                    printf("Stochastic-adaptive l1/l2 StEFCal l1 = %lf, l2 = %lf, b0 = %ld\n", l1, l2, b0);
+                                }
+                                //solve — matches start_single_pso's STEFCAL_STOCHASTIC_FIXED_B case
+                                solve_G_StEFCal_stochastic_adaptive_l1l2(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1, &l2, &b0, &(int){1});
+                                //extract data
+                                double* average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                                set_element_a(results_averages, (size_t[]){i,j}, average_iterations);
+                                if (PRINT_DATA) {
+                                    printf("Average Iterations = %f\n", *average_iterations);
+                                }
+                                free(average_iterations);
+
+                                //filename
+                                char filename[256];
+                                sprintf(filename, "stochastic_fixed_b_%ld_%ld",i,j);
                                 save_data_to_structure_ds(data_store, calibrator, &index, filename);
                                 break;
                             }
@@ -944,15 +1170,15 @@ void save_data_to_structure_ds(struct DataStore* data_store, struct Calibrator* 
             }
         }
         //Creating a jarray with size sum
-        struct Jaggedarray* new_all_gains_jagged_array = new_ja(&sum);
+        struct JaggedArray* new_all_gains_jagged_array = new_ja(&sum);
         //go through the iterations there is a 1000 for each
         //Creating a datacontainer holding datacontainers
-        printf("Random Timesteps: ");
+        // printf("Random Timesteps: ");
         fflush(stdout);
         size_t count = 0;
         for (size_t ts = 0; ts < RANDOM_TIMESTEP_AMOUNT; ts++) {
-            printf("%zu ",ts);
-            fflush(stdout);
+            // printf("%zu ",ts);
+            // fflush(stdout);
             //Need to get the sum of the iterations array.
             //Need to get the index.
             int* index_into_iterations_array = get_element_a(calibrator->random_timesteps, (size_t[]){ts});
@@ -971,7 +1197,7 @@ void save_data_to_structure_ds(struct DataStore* data_store, struct Calibrator* 
                 }
             }
         }
-        printf("\n");
+        // printf("\n");
         set_new_jarray_dcon(&data_store->all_gains_dcon, index, filename, new_all_gains_jagged_array);
         free_ja(new_all_gains_jagged_array);
 
@@ -987,7 +1213,7 @@ void save_data_to_structure_ds(struct DataStore* data_store, struct Calibrator* 
 /**
  * This function will extract the information from a datastore
  */
-struct Jaggedarray* extract_info_ds(struct DataStore* data_store, char* directory) {
+struct JaggedArray* extract_info_ds(struct DataStore* data_store, char* directory) {
     if (data_store == NULL) {
         log_null_value(__FILE__, __LINE__);
     }
@@ -1032,8 +1258,8 @@ struct Jaggedarray* extract_info_ds(struct DataStore* data_store, char* director
             char* filename = data_store->gains_dcon->items[i];
             char filepath[512];
             sprintf(filepath, "%s/%s/%s.jarray", data_store->gains_dcon->directory, data_store->gains_dcon->identity, filename);
-            struct Jaggedarray* jarray = read_from_file_ja(filepath);
-            struct Jaggedarray* jarray_residuals = new_ja(jarray->size);
+            struct JaggedArray* jarray = read_from_file_ja(filepath);
+            struct JaggedArray* jarray_residuals = new_ja(jarray->size);
 
             for (size_t t = 0; t < *jarray->size; t++) {
                 struct array* r = compute_r_N(M_t_s[t], D_t_s[t], jarray->jarray[t]);
@@ -1204,7 +1430,7 @@ struct Jaggedarray* extract_info_ds(struct DataStore* data_store, char* director
                                 }
                               );
 
-        struct Jaggedarray* jarray = new_ja(&(size_t){6});
+        struct JaggedArray* jarray = new_ja(&(size_t){6});
         set_ja(jarray, hyperparameters_array, &(size_t){0});
         set_ja(jarray, means, &(size_t){1});
         set_ja(jarray, stds, &(size_t){2});
@@ -1242,6 +1468,7 @@ void extract_heatmap_data_ds(struct DataStore* data_store, char* save_directory,
 
     bool done = check_done_dcon(data_store->iterations_dcon);
     if (done) {
+        printf("dcon done!\n");
         struct array* means = zeros_a(&(size_t){1}, (size_t[]){*data_store->iterations_dcon->size}, &(enum DataType){DOUBLE});
         struct array* stds = zeros_a(&(size_t){1}, (size_t[]){*data_store->iterations_dcon->size}, &(enum DataType){DOUBLE});
         struct array* residual_norms = zeros_a(&(size_t){1}, (size_t[]){*data_store->gains_dcon->size}, &(enum DataType){DOUBLE});
@@ -1265,6 +1492,7 @@ void extract_heatmap_data_ds(struct DataStore* data_store, char* save_directory,
             free(mean);
             free_a(array);
         }
+        printf("iterations read!\n");
 
         struct array** M_t_s = malloc(*simulator->n_steps * sizeof(struct array*));
         struct array** D_t_s = malloc(*simulator->n_steps * sizeof(struct array*));
@@ -1274,14 +1502,28 @@ void extract_heatmap_data_ds(struct DataStore* data_store, char* save_directory,
             M_t_s[step] = M_t;
             D_t_s[step] = D_t;
         } 
+        printf("simulated data read!\n");
 
         for (size_t i = 0; i < *data_store->gains_dcon->size; i++) {
+            if (i == 10000) {
+                printf("Step %zu of %zu\n", i , *data_store->gains_dcon->size);
+            }
+            if (i == 20000) {
+                printf("Step %zu of %zu\n", i , *data_store->gains_dcon->size);
+            }
+            if (i == 30000) {
+                printf("Step %zu of %zu\n", i , *data_store->gains_dcon->size);
+            }
+            if (i == 40000) {
+                printf("Step %zu of %zu\n", i , *data_store->gains_dcon->size);
+            }
+            
             //read the jarray for the pixel
             char* filename = data_store->gains_dcon->items[i];
             char filepath[512];
             sprintf(filepath, "%s/%s/%s.jarray", data_store->gains_dcon->directory, data_store->gains_dcon->identity, filename);
-            struct Jaggedarray* jarray = read_from_file_ja(filepath);
-            struct Jaggedarray* jarray_residuals = new_ja(jarray->size);
+            struct JaggedArray* jarray = read_from_file_ja(filepath);
+            struct JaggedArray* jarray_residuals = new_ja(jarray->size);
 
             for (size_t t = 0; t < *jarray->size; t++) {
                 struct array* r = compute_r_N(M_t_s[t], D_t_s[t], jarray->jarray[t]);
@@ -1296,6 +1538,8 @@ void extract_heatmap_data_ds(struct DataStore* data_store, char* save_directory,
             free_ja(jarray_residuals);
             free_ja(jarray);            
         }
+        printf("Gains Computed!\n");
+
 
         for (size_t step = 0; step < *simulator->n_steps; step++) {
             free_a(M_t_s[step]);
@@ -1312,7 +1556,7 @@ void extract_heatmap_data_ds(struct DataStore* data_store, char* save_directory,
         free_a(stds);
         free_a(residual_norms);
         free_s(simulator);
-
+        printf("NEXT!\n");
     }
 }
 
@@ -1364,8 +1608,8 @@ void extract_heatmap_data_pso_ds(struct DataStore* data_store, char* save_direct
             char* filename = data_store->gains_dcon->items[i];
             char filepath[512];
             sprintf(filepath, "%s/%s/%s.jarray", data_store->gains_dcon->directory, data_store->gains_dcon->identity, filename);
-            struct Jaggedarray* jarray = read_from_file_ja(filepath);
-            struct Jaggedarray* jarray_residuals = new_ja(jarray->size);
+            struct JaggedArray* jarray = read_from_file_ja(filepath);
+            struct JaggedArray* jarray_residuals = new_ja(jarray->size);
 
             for (size_t t = 0; t < *jarray->size; t++) {
                 struct array* r = compute_r_N(M_t_s[t], D_t_s[t], jarray->jarray[t]);
@@ -1449,8 +1693,8 @@ void map_average_iterations_std_ds(struct DataStore* data_store) {
             char* filename = data_store->gains_dcon->items[i];
             char filepath[512];
             sprintf(filepath, "%s/%s/%s.jarray", data_store->gains_dcon->directory, data_store->gains_dcon->identity, filename);
-            struct Jaggedarray* jarray = read_from_file_ja(filepath);
-            struct Jaggedarray* jarray_residuals = new_ja(jarray->size);
+            struct JaggedArray* jarray = read_from_file_ja(filepath);
+            struct JaggedArray* jarray_residuals = new_ja(jarray->size);
 
             for (size_t t = 0; t < *jarray->size; t++) {
                 struct array* r = compute_r_N(M_t_s[t], D_t_s[t], jarray->jarray[t]);
@@ -1763,7 +2007,7 @@ void map_average_iterations_std_ds(struct DataStore* data_store) {
         
         double* max_mean_log10 = max_a(means_log10);
         char filename[512];
-        sprintf(filename, "./figures/average_iterations_heatmaps/%s_%s_order_%d_snr_%lf_maxamp_%lf_seed_%d_gridlength_%zu", algorithm, layout, *data_store->order, *data_store->snr, *data_store->max_amp, *data_store->seed, *data_store->grid_length);
+        sprintf(filename, "./pictures/average_iterations_heatmaps/%s_%s_order_%d_snr_%lf_maxamp_%lf_seed_%d_gridlength_%zu", algorithm, layout, *data_store->order, *data_store->snr, *data_store->max_amp, *data_store->seed, *data_store->grid_length);
 
         /*******************************************************************************************************************
          * Plotting average iterations heatmap
@@ -1819,7 +2063,7 @@ void map_average_iterations_std_ds(struct DataStore* data_store) {
          * Plotting std heatmap
          * ****************************************************************************************************************/
         char filenameStd[512];
-        sprintf(filenameStd, "./figures/std_heatmaps/%s_%s_order_%d_snr_%lf_maxamp_%lf_seed_%d_gridlength_%zu", algorithm, layout, *data_store->order, *data_store->snr, *data_store->max_amp, *data_store->seed, *data_store->grid_length);
+        sprintf(filenameStd, "./pictures/std_heatmaps/%s_%s_order_%d_snr_%lf_maxamp_%lf_seed_%d_gridlength_%zu", algorithm, layout, *data_store->order, *data_store->snr, *data_store->max_amp, *data_store->seed, *data_store->grid_length);
         double* max_std = max_a(stds);
 
         FILE *commandsFileStd = fopen("heatmap_std_commands.gplot", "w");
@@ -1871,7 +2115,7 @@ void map_average_iterations_std_ds(struct DataStore* data_store) {
          * Plotting residual norm heatmap
          * ****************************************************************************************************************/
         char filenameResidualNorm[512];
-        sprintf(filenameResidualNorm, "./figures/residual_norm_heatmaps/%s_%s_order_%d_snr_%lf_maxamp_%lf_seed_%d_gridlength_%zu", algorithm, layout, *data_store->order, *data_store->snr, *data_store->max_amp, *data_store->seed, *data_store->grid_length);
+        sprintf(filenameResidualNorm, "./pictures/residual_norm_heatmaps/%s_%s_order_%d_snr_%lf_maxamp_%lf_seed_%d_gridlength_%zu", algorithm, layout, *data_store->order, *data_store->snr, *data_store->max_amp, *data_store->seed, *data_store->grid_length);
         double* max_residual_norm = max_a(residual_norm_log10);
 
         FILE *commandsFileResidualNorm = fopen("heatmap_residual_norm_commands.gplot", "w");

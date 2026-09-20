@@ -35,7 +35,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(COMPILER) $(FLAGS) -I$(INCLUDE_DIR) -I$(LIB_DIR) -o $@ -c $<
 
 $(OBJ_DIR)/%.o: $(TEST_DIR)/%.c
-	$(COMPILER) $(FLAGS) -I$(INCLUDE_DIR) -I$(LIB_DIR) -I$(SRC_DIR) -o $@ -c $<
+	$(COMPILER) $(FLAGS) -I$(INCLUDE_DIR) -I$(LIB_DIR) -I$(SRC_DIR) -I$(TEST_DIR) -o $@ -c $<
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)

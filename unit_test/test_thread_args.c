@@ -1,8 +1,6 @@
 #include "unity.h"
 #include "thread_args.h"
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 void test_init_ta() {
 
@@ -14,8 +12,8 @@ void test_init_ta() {
 }
 
 // Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-//     RUN_TEST(test_init_ta);
-//     return UNITY_END();
-// }   
+int run_thread_args_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_init_ta);
+    return UNITY_END();
+}   

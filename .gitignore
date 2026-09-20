@@ -1,33 +1,29 @@
-# Ignore the obj/ folder
+# Build output
 obj/
-
-# Ignore the executable file
+lib/*.o
 risim
 unit_test_runner
-*simulators/
-*data/
 
+# Generated simulation data and results
+*simulators/
+data/
+data_store/
+bin/
+test/
+*.sconfig
+*.dsconfig
+*.dcconfig
+*.ddconfig
+
+# Plots and plotting intermediates
 pictures/
 mapping_pictures/
-data_store/
-test/
-.vscode/
-*.dsconfig
 *.png
 *.jpg
 *.jpeg
-*.dcconfig
-*.dsconfig
-*.ddconfig
+*.gplot
 ellipses.txt
 points.txt
-*.gplot
-data/
-bin/
-python_gridding/
 
-!python/important/
-!python/important/figures/
-!python/important/figures/**
-!python/important/data/
-!python/important/data/**
+# Editor
+.vscode/

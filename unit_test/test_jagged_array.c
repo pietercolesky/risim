@@ -1,19 +1,17 @@
 #include "unity.h"
 #include "jagged_array.h"
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 void test_new_js() {
     size_t size = 3;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
     free_ja(jagged_array);
 }
 
 void test_set_js() {
     size_t size = 3;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array = zeros_a(&(size_t){1}, (size_t[]){4}, &(enum DataType){DOUBLE});
@@ -26,7 +24,7 @@ void test_set_js() {
 
 void test_get_js() {
     size_t size = 3;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array = zeros_a(&(size_t){1}, (size_t[]){4}, &(enum DataType){DOUBLE});
@@ -49,7 +47,7 @@ void test_get_js() {
 
 void test_save_to_file_js() {
     size_t size = 3;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array = new_set_a(&(size_t){1},
@@ -68,7 +66,7 @@ void test_save_to_file_js() {
 }
 
 void test_read_from_file_ja() {
-    struct Jaggedarray* jagged_array = read_from_file_ja("./unit_test/bin/test.jarray");
+    struct JaggedArray* jagged_array = read_from_file_ja("./unit_test/bin/test.jarray");
     TEST_ASSERT_NOT_NULL(jagged_array);
     print_ja(jagged_array);
     free_ja(jagged_array);
@@ -76,7 +74,7 @@ void test_read_from_file_ja() {
 
 void test_average_ja_COMPLEX() {
     size_t size = 3;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array1 = new_set_a(&(size_t){1},
@@ -117,7 +115,7 @@ void test_average_ja_COMPLEX() {
 
 void test_average_ja_DOUBLE() {
     size_t size = 3;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array1 = new_set_a(&(size_t){1},
@@ -158,7 +156,7 @@ void test_average_ja_DOUBLE() {
 
 void test_average_ja_INT() {
     size_t size = 3;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array1 = new_set_a(&(size_t){1},
@@ -199,7 +197,7 @@ void test_average_ja_INT() {
 
 void test_average_ja_FLOAT() {
     size_t size = 3;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array1 = new_set_a(&(size_t){1},
@@ -240,7 +238,7 @@ void test_average_ja_FLOAT() {
 
 void test_norm_ja_COMPLEX() {
     size_t size = 4;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array1 = new_set_a(&(size_t){1},
@@ -290,7 +288,7 @@ void test_norm_ja_COMPLEX() {
 
 void test_norm_ja_DOUBLE() {
     size_t size = 4;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array1 = new_set_a(&(size_t){1},
@@ -340,7 +338,7 @@ void test_norm_ja_DOUBLE() {
 
 void test_norm_ja_INT() {
     size_t size = 4;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array1 = new_set_a(&(size_t){1},
@@ -390,7 +388,7 @@ void test_norm_ja_INT() {
 
 void test_norm_ja_FLOAT() {
     size_t size = 4;
-    struct Jaggedarray* jagged_array = new_ja(&size);
+    struct JaggedArray* jagged_array = new_ja(&size);
     TEST_ASSERT_NOT_NULL(jagged_array);
 
     struct array* array1 = new_set_a(&(size_t){1},
@@ -438,20 +436,20 @@ void test_norm_ja_FLOAT() {
     free_ja(jagged_array);
 }
 
-// int main(void) {
-//     UNITY_BEGIN();
-//     // RUN_TEST(test_new_js);
-//     // RUN_TEST(test_set_js);
-//     // RUN_TEST(test_get_js);
-//     // RUN_TEST(test_save_to_file_js);
-//     // RUN_TEST(test_read_from_file_ja);
-//     // RUN_TEST(test_average_ja_COMPLEX);
-//     // RUN_TEST(test_average_ja_DOUBLE);
-//     // RUN_TEST(test_average_ja_INT);
-//     // RUN_TEST(test_average_ja_FLOAT);
-//     // RUN_TEST(test_norm_ja_COMPLEX);
-//     // RUN_TEST(test_norm_ja_DOUBLE);
-//     // RUN_TEST(test_norm_ja_INT);
-//     // RUN_TEST(test_norm_ja_FLOAT);
-//     return UNITY_END();
-// } 
+int run_jagged_array_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_new_js);
+    RUN_TEST(test_set_js);
+    RUN_TEST(test_get_js);
+    RUN_TEST(test_save_to_file_js);
+    RUN_TEST(test_read_from_file_ja);
+    RUN_TEST(test_average_ja_COMPLEX);
+    RUN_TEST(test_average_ja_DOUBLE);
+    RUN_TEST(test_average_ja_INT);
+    RUN_TEST(test_average_ja_FLOAT);
+    RUN_TEST(test_norm_ja_COMPLEX);
+    RUN_TEST(test_norm_ja_DOUBLE);
+    RUN_TEST(test_norm_ja_INT);
+    RUN_TEST(test_norm_ja_FLOAT);
+    return UNITY_END();
+} 

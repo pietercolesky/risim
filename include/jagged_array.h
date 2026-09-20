@@ -7,114 +7,114 @@
 #include <stdlib.h>
 #include "array.h"
 
-#ifndef _JAGGED_array_H
-#define _JAGGED_array_H
+#ifndef _JAGGED_ARRAY_H
+#define _JAGGED_ARRAY_H
 
 /**
- * Jaggedarray struct
+ * JaggedArray struct
 */
-struct Jaggedarray {
+struct JaggedArray {
     size_t* size;
     struct array** jarray;
 };
 
 /**
- * Create new Jaggedarray
+ * Create new JaggedArray
  * RETURNS:
- *  - Jaggedarray struct pointer
+ *  - JaggedArray struct pointer
  * INPUTE:
  *  - size
 */
-struct Jaggedarray* new_ja(size_t* size);
+struct JaggedArray* new_ja(size_t* size);
 
 /**
- * free Jaggedarray
+ * free JaggedArray
  * RETURNS:
  *  - None
  * INPUTE:
- *  - Jaggedarray Pointer
+ *  - JaggedArray Pointer
 */
-void free_ja(struct Jaggedarray* jagged_array);
+void free_ja(struct JaggedArray* jagged_array);
 
 /**
- * set array in Jaggedarray
+ * set array in JaggedArray
  * RETURNS:
  *  - None
  * INPUTE:
- *  - struct Jaggedarray pointer
+ *  - struct JaggedArray pointer
  *  - struct array pointer
  *  - index
  * NOTE:
  *  - A copy of the array will be made.
 */
-void set_ja(struct Jaggedarray* jagged_array, struct array* array, size_t* index);
+void set_ja(struct JaggedArray* jagged_array, struct array* array, size_t* index);
 
 /**
- * get array in Jaggedarray
+ * get array in JaggedArray
  * RETURNS:
  *  - struct array pointer
  * INPUTE:
- *  - struct Jaggedarray pointer
+ *  - struct JaggedArray pointer
  *  - index
  * NOTE:
  *  - A copy of the array will be made.
 */
-struct array* get_ja(struct Jaggedarray* jagged_array, size_t* index);
+struct array* get_ja(struct JaggedArray* jagged_array, size_t* index);
 
 /**
- * save Jaggedarray
+ * save JaggedArray
  * RETURNS:
  *  - None
  * INPUTE:
- *  - Jaggedarray
+ *  - JaggedArray
  *  - directory
  *  - filename
 */
-void save_to_file_ja(struct Jaggedarray* jagged_array, char* directory, char* filename);
+void save_to_file_ja(struct JaggedArray* jagged_array, char* directory, char* filename);
 
 /**
- * Read Jaggedarray
+ * Read JaggedArray
  * RETURNS:
- *  - Jaggedarray struct pointer
+ *  - JaggedArray struct pointer
  * INPUTE:
  *  - filepath
 */
-struct Jaggedarray* read_from_file_ja(char* filepath);
+struct JaggedArray* read_from_file_ja(char* filepath);
 
 /**
- * create and save Jaggedarray
+ * create and save JaggedArray
  * RETURNS:
  *  - None
  * INPUTE:
- *  - Jaggedarray
+ *  - JaggedArray
 */
-void new_save_ja(struct Jaggedarray* jagged_array);
+void new_save_ja(struct JaggedArray* jagged_array);
 
 /**
- * print Jaggedarray
+ * print JaggedArray
  * RETURNS:
  *  - None
  * INPUTE:
- *  - Jaggedarray
+ *  - JaggedArray
 */
-void print_ja(struct Jaggedarray* jagged_array);
+void print_ja(struct JaggedArray* jagged_array);
 
 /**
- * Average of Jaggedarray
+ * Average of JaggedArray
  * RETURNS:
  *  - average
  * INPUTE:
- *  - Jaggedarray
+ *  - JaggedArray
 */
-void* average_ja(struct Jaggedarray* jagged_array);
+void* average_ja(struct JaggedArray* jagged_array);
 
 /**
- * Norm of Jaggedarray
+ * Norm of JaggedArray
  * RETURNS:
  *  - norm
  * INPUTE:
- *  - Jaggedarray
+ *  - JaggedArray
 */
-void* norm_ja(struct Jaggedarray* jagged_array);
+void* norm_ja(struct JaggedArray* jagged_array);
 
 #endif

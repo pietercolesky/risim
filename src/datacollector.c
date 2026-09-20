@@ -75,6 +75,14 @@ struct DataCollector* new_dc(struct Calibrator* calibrator) {
         log_mem_aloc_fail(__FILE__, __LINE__);
     }
 
+    // Per-iteration subsample sizes b, one row per timestep (populated only on the
+    // raw-iteration/extraction path; see solve_G_StEFCal_stochastic_adaptive_l1l2).
+    datacollector->b_values = new_ja(calibrator->n_steps);
+    if (datacollector->b_values == NULL) {
+        free_dc(datacollector);
+        log_mem_aloc_fail(__FILE__, __LINE__);
+    }
+
     return datacollector;
 }
 
@@ -139,6 +147,12 @@ struct DataCollector* new_reduced_dc(struct Calibrator* calibrator) {
         log_mem_aloc_fail(__FILE__, __LINE__);
     }
 
+    datacollector->b_values = new_ja(&(size_t){RANDOM_TIMESTEP_REDUCED_AMOUNT});
+    if (datacollector->b_values == NULL) {
+        free_dc(datacollector);
+        log_mem_aloc_fail(__FILE__, __LINE__);
+    }
+
     return datacollector;
 }
 
@@ -176,6 +190,7 @@ void free_dc(struct DataCollector* datacollector) {
     }
 
     free_ja(datacollector->last_residual);
+    free_ja(datacollector->b_values);
 
     free(datacollector);
 }
@@ -204,12 +219,12 @@ void add_gain_dc(struct DataCollector* datacollector, size_t* time_step, struct 
 /**
  * get last gains array
 */
-struct Jaggedarray* get_last_gains_dc(struct DataCollector* datacollector) {
+struct JaggedArray* get_last_gains_dc(struct DataCollector* datacollector) {
     return datacollector->gains;
 }
 
 /**
- * Add all gains captured for a specific timestep in all_gains array
+ * Add all gains captured for a specific timestep in all_gains Array
 */
 void add_all_gain_dc(struct DataCollector* datacollector, size_t* index, size_t* iteration, struct array* array) {
     size_t pos = (*index * MAX_ITERATIONS_CAPTURE) + *iteration;
@@ -219,7 +234,7 @@ void add_all_gain_dc(struct DataCollector* datacollector, size_t* index, size_t*
 /**
  * Get all gains for all time steps
 */
-struct Jaggedarray* get_all_gain_dc(struct DataCollector* datacollector) {
+struct JaggedArray* get_all_gain_dc(struct DataCollector* datacollector) {
     size_t new_size = 0;
 
     struct array* iterations = datacollector->iterations;
@@ -235,7 +250,7 @@ struct Jaggedarray* get_all_gain_dc(struct DataCollector* datacollector) {
         new_size += timestep_amount;
     }
 
-    struct Jaggedarray* resized_all_gains = new_ja(&(size_t){new_size});
+    struct JaggedArray* resized_all_gains = new_ja(&(size_t){new_size});
 
     size_t count = 0;
     for (size_t i = 0; i < RANDOM_TIMESTEP_AMOUNT; i++) {
@@ -258,7 +273,7 @@ struct Jaggedarray* get_all_gain_dc(struct DataCollector* datacollector) {
 }
 
 /**
- * Adds array of i damping factors to daming_g array at timestep t
+ * Adds Array of i damping factors to daming_g Array at timestep t
  */
 void add_damping_g_dc(struct DataCollector* datacollector, size_t* index, struct array* array) {
     set_ja(datacollector->damping_g, array, index);
@@ -267,12 +282,12 @@ void add_damping_g_dc(struct DataCollector* datacollector, size_t* index, struct
 /**
  * Get damping g
  */
-struct Jaggedarray* get_damping_g_dc(struct DataCollector* datacollector) {
+struct JaggedArray* get_damping_g_dc(struct DataCollector* datacollector) {
     return datacollector->damping_g;
 }
 
 /**
- * Adds array of i damping factors to daming_g_old array at timestep t
+ * Adds Array of i damping factors to daming_g_old Array at timestep t
  */
 void add_damping_g_old_dc(struct DataCollector* datacollector, size_t* index, struct array* array) {
     set_ja(datacollector->damping_g_old, array, index);
@@ -281,8 +296,22 @@ void add_damping_g_old_dc(struct DataCollector* datacollector, size_t* index, st
 /**
  * Get damping g old
  */
-struct Jaggedarray* get_damping_g_old_dc(struct DataCollector* datacollector) {
+struct JaggedArray* get_damping_g_old_dc(struct DataCollector* datacollector) {
     return datacollector->damping_g_old;
+}
+
+/**
+ * Adds the array of per-iteration b (subsample size) values to b_values at timestep t
+ */
+void add_b_values_dc(struct DataCollector* datacollector, size_t* index, struct array* array) {
+    set_ja(datacollector->b_values, array, index);
+}
+
+/**
+ * Get b values (one row of per-iteration subsample sizes per timestep)
+ */
+struct JaggedArray* get_b_values_dc(struct DataCollector* datacollector) {
+    return datacollector->b_values;
 }
 
 /**
@@ -349,7 +378,7 @@ void add_last_residual_dc(struct DataCollector* datacollector, size_t* time_step
 /**
  * Get last residual array
 */
-struct Jaggedarray* get_last_residual_dc(struct DataCollector* datacollector) {
+struct JaggedArray* get_last_residual_dc(struct DataCollector* datacollector) {
     return datacollector->last_residual;
 }
 
@@ -359,7 +388,7 @@ struct Jaggedarray* get_last_residual_dc(struct DataCollector* datacollector) {
  * The value should be freed
 */
 void* get_last_residuals_norm_dc(struct DataCollector* datacollector) {
-    struct Jaggedarray* jarray = datacollector->last_residual;
+    struct JaggedArray* jarray = datacollector->last_residual;
     if (jarray == NULL) {
         log_null_value(__FILE__, __LINE__);
     }

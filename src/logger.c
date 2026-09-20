@@ -76,10 +76,10 @@ void log_index_out_of_bounds(const char* file, int line){
 }
 
 /**
- * array is better for as Matrix with one dimention.
+ * Array is better for as Matrix with one dimention.
 */
 void log_use_array(const char* file, int line){
-    LOG_ERROR(file, line, "Use array Struct Instead");
+    LOG_ERROR(file, line, "Use Array Struct Instead");
     exit(0);
 }
 
@@ -140,10 +140,10 @@ void log_invalid_layout(const char* file, int line) {
 }
 
 /**
- * NULL array
+ * NULL Array
 */
 void log_null_array(const char* file, int line) {
-    LOG_ERROR(file, line, "NULL array.");
+    LOG_ERROR(file, line, "NULL Array.");
     exit(0);
 }
 

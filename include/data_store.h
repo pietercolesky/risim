@@ -40,6 +40,8 @@ struct DataStore {
     struct DataContainer* all_gains_dcon;
     struct DataContainer* damping_g_dcon;
     struct DataContainer* damping_g_old_dcon;
+    double* fixed_alpha;
+    double* fixed_b;
 };
 
 /**
@@ -96,7 +98,7 @@ void save_data_to_structure_ds(struct DataStore* data_store, struct Calibrator* 
 /**
  * This function will extract the information from a datastore
  */
-struct Jaggedarray* extract_info_ds(struct DataStore* data_store, char* directory);
+struct JaggedArray* extract_info_ds(struct DataStore* data_store, char* directory);
 
 /**
  * Extract Heatmap data from data store

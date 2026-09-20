@@ -107,6 +107,18 @@ struct DataStore* new_data_store_dd(struct DataDictionary* data_dictionary, doub
 struct DataStore* new_data_store_update_dd(struct DataDictionary** data_dictionary, double* h_min, double* h_max, double* dec, double* lat, double* freq, enum LayoutType* layout, size_t* n_steps, double* bas_len, int* order, double* snr, double* max_amp, int* seed, int* num_workers, size_t* grid_length, enum AlgorithmType* algorithm_type, size_t* amount_hyperparameters, struct array* hyperparameters_bounds);
 
 /**
+ * Same as new_data_store_update_dd, but additionally binds a constant alpha
+ * onto the returned DataStore (used by ADAM_FIXED_ALPHA gridding).
+*/
+struct DataStore* new_data_store_update_dd_fixed_alpha(struct DataDictionary** data_dictionary, double* h_min, double* h_max, double* dec, double* lat, double* freq, enum LayoutType* layout, size_t* n_steps, double* bas_len, int* order, double* snr, double* max_amp, int* seed, int* num_workers, size_t* grid_length, enum AlgorithmType* algorithm_type, size_t* amount_hyperparameters, struct array* hyperparameters_bounds, double* fixed_alpha);
+
+/**
+ * Same as new_data_store_update_dd, but additionally binds a constant b0
+ * onto the returned DataStore (used by STEFCAL_STOCHASTIC_FIXED_B gridding).
+*/
+struct DataStore* new_data_store_update_dd_fixed_b(struct DataDictionary** data_dictionary, double* h_min, double* h_max, double* dec, double* lat, double* freq, enum LayoutType* layout, size_t* n_steps, double* bas_len, int* order, double* snr, double* max_amp, int* seed, int* num_workers, size_t* grid_length, enum AlgorithmType* algorithm_type, size_t* amount_hyperparameters, struct array* hyperparameters_bounds, double* fixed_b);
+
+/**
  * This function will create a new data container that contains arrays and return its pointer. Makes sure that the container has a unique name
  */
 struct DataContainer* new_data_container_type_1_dd(struct DataDictionary* data_dictionary, char* identity, size_t* size);

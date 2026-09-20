@@ -589,6 +589,20 @@ struct DataStore* new_data_store_update_dd(struct DataDictionary** data_dictiona
     return data_store;
 }
 
+struct DataStore* new_data_store_update_dd_fixed_alpha(struct DataDictionary** data_dictionary, double* h_min, double* h_max, double* dec, double* lat, double* freq, enum LayoutType* layout, size_t* n_steps, double* bas_len, int* order, double* snr, double* max_amp, int* seed, int* num_workers, size_t* grid_length, enum AlgorithmType* algorithm_type, size_t* amount_hyperparameters, struct array* hyperparameters_bounds, double* fixed_alpha) {
+    struct DataStore* data_store = new_data_store_update_dd(data_dictionary, h_min, h_max, dec, lat, freq, layout, n_steps, bas_len, order, snr, max_amp, seed, num_workers, grid_length, algorithm_type, amount_hyperparameters, hyperparameters_bounds);
+    data_store->fixed_alpha = malloc(sizeof(double));
+    *data_store->fixed_alpha = *fixed_alpha;
+    return data_store;
+}
+
+struct DataStore* new_data_store_update_dd_fixed_b(struct DataDictionary** data_dictionary, double* h_min, double* h_max, double* dec, double* lat, double* freq, enum LayoutType* layout, size_t* n_steps, double* bas_len, int* order, double* snr, double* max_amp, int* seed, int* num_workers, size_t* grid_length, enum AlgorithmType* algorithm_type, size_t* amount_hyperparameters, struct array* hyperparameters_bounds, double* fixed_b) {
+    struct DataStore* data_store = new_data_store_update_dd(data_dictionary, h_min, h_max, dec, lat, freq, layout, n_steps, bas_len, order, snr, max_amp, seed, num_workers, grid_length, algorithm_type, amount_hyperparameters, hyperparameters_bounds);
+    data_store->fixed_b = malloc(sizeof(double));
+    *data_store->fixed_b = *fixed_b;
+    return data_store;
+}
+
 /**
  * This function will create a new data container that contains arrays and return its pointer. Makes sure that the container has a unique name
  */

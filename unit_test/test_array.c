@@ -4,10 +4,8 @@
 
 
 // Define empty setUp and tearDown functions
-// void setUp(void) {}
-// void tearDown(void) {}
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_1d_DOUBLE(void) {
     struct array* array = new_a(&(size_t){1}, (size_t[]){3}, &(enum DataType){DOUBLE});
     TEST_ASSERT_NOT_NULL(array);
@@ -17,7 +15,7 @@ void test_new_a_1d_DOUBLE(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_1d_INT(void) {
     struct array* array = new_a(&(size_t){1}, (size_t[]){3}, &(enum DataType){INT});
     TEST_ASSERT_NOT_NULL(array);
@@ -27,7 +25,7 @@ void test_new_a_1d_INT(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_1d_FLOAT(void) {
     struct array* array = new_a(&(size_t){1}, (size_t[]){3}, &(enum DataType){FLOAT});
     TEST_ASSERT_NOT_NULL(array);
@@ -37,7 +35,7 @@ void test_new_a_1d_FLOAT(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_1d_COMPLEX(void) {
     struct array* array = new_a(&(size_t){1}, (size_t[]){3}, &(enum DataType){COMPLEX});
     TEST_ASSERT_NOT_NULL(array);
@@ -47,7 +45,7 @@ void test_new_a_1d_COMPLEX(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_2d_DOUBLE(void) {
     struct array* array = new_a(&(size_t){2}, (size_t[]){3,3}, &(enum DataType){DOUBLE});
     TEST_ASSERT_NOT_NULL(array);
@@ -58,7 +56,7 @@ void test_new_a_2d_DOUBLE(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_2d_INT(void) {
     struct array* array = new_a(&(size_t){2}, (size_t[]){3,3}, &(enum DataType){INT});
     TEST_ASSERT_NOT_NULL(array);
@@ -69,7 +67,7 @@ void test_new_a_2d_INT(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_2d_FLOAT(void) {
     struct array* array = new_a(&(size_t){2}, (size_t[]){3,3}, &(enum DataType){FLOAT});
     TEST_ASSERT_NOT_NULL(array);
@@ -80,7 +78,7 @@ void test_new_a_2d_FLOAT(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_2d_COMPLEX(void) {
     struct array* array = new_a(&(size_t){2}, (size_t[]){3,3}, &(enum DataType){COMPLEX});
     TEST_ASSERT_NOT_NULL(array);
@@ -91,7 +89,7 @@ void test_new_a_2d_COMPLEX(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_3d_DOUBLE(void) {
     struct array* array = new_a(&(size_t){3}, (size_t[]){3,3,3}, &(enum DataType){DOUBLE});
     TEST_ASSERT_NOT_NULL(array);
@@ -103,7 +101,7 @@ void test_new_a_3d_DOUBLE(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_3d_INT(void) {
     struct array* array = new_a(&(size_t){3}, (size_t[]){3,3,3}, &(enum DataType){INT});
     TEST_ASSERT_NOT_NULL(array);
@@ -115,7 +113,7 @@ void test_new_a_3d_INT(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_3d_FLOAT(void) {
     struct array* array = new_a(&(size_t){3}, (size_t[]){3,3,3}, &(enum DataType){FLOAT});
     TEST_ASSERT_NOT_NULL(array);
@@ -127,7 +125,7 @@ void test_new_a_3d_FLOAT(void) {
     free_a(array);
 }
 
-//Testing the creation of an array
+//Testing the creation of an Array
 void test_new_a_3d_COMPLEX(void) {
     struct array* array = new_a(&(size_t){3}, (size_t[]){3,3,3}, &(enum DataType){COMPLEX});
     TEST_ASSERT_NOT_NULL(array);
@@ -8757,367 +8755,368 @@ void test_sqrt_a_complex() {
 
 
 //Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-    // RUN_TEST(test_new_a_1d_DOUBLE);
-    // RUN_TEST(test_new_a_1d_INT);
-    // RUN_TEST(test_new_a_1d_FLOAT);
-    // RUN_TEST(test_new_a_1d_COMPLEX);
-    // RUN_TEST(test_new_a_2d_DOUBLE);
-    // RUN_TEST(test_new_a_2d_INT);
-    // RUN_TEST(test_new_a_2d_FLOAT);
-    // RUN_TEST(test_new_a_2d_COMPLEX);
-    // RUN_TEST(test_new_a_3d_DOUBLE);
-    // RUN_TEST(test_new_a_3d_INT);
-    // RUN_TEST(test_new_a_3d_FLOAT);
-    // RUN_TEST(test_new_a_3d_COMPLEX);
-    // RUN_TEST(test_get_size_1d);
-    // RUN_TEST(test_get_size_2d);
-    // RUN_TEST(test_get_size_3d);
-    // RUN_TEST(test_get_a);
-    // RUN_TEST(test_get_element_a);
-    // RUN_TEST(test_zeros_a_1d_DOUBLE);
-    // RUN_TEST(test_zeros_a_2d_DOUBLE);
-    // RUN_TEST(test_zeros_a_3d_DOUBLE);
-    // RUN_TEST(test_zeros_a_1d_INT);
-    // RUN_TEST(test_zeros_a_2d_INT);
-    // RUN_TEST(test_zeros_a_3d_INT);
-    // RUN_TEST(test_zeros_a_1d_FLOAT);
-    // RUN_TEST(test_zeros_a_2d_FLOAT);
-    // RUN_TEST(test_zeros_a_3d_FLOAT);
-    // RUN_TEST(test_zeros_a_1d_COMPLEX);
-    // RUN_TEST(test_zeros_a_2d_COMPLEX);
-    // RUN_TEST(test_zeros_a_3d_COMPLEX);
-    // RUN_TEST(test_ones_a_1d_DOUBLE);
-    // RUN_TEST(test_ones_a_2d_DOUBLE);
-    // RUN_TEST(test_ones_a_3d_DOUBLE);
-    // RUN_TEST(test_ones_a_1d_INT);
-    // RUN_TEST(test_ones_a_2d_INT);
-    // RUN_TEST(test_ones_a_3d_INT);
-    // RUN_TEST(test_ones_a_1d_FLOAT);
-    // RUN_TEST(test_ones_a_2d_FLOAT);
-    // RUN_TEST(test_ones_a_3d_FLOAT);
-    // RUN_TEST(test_ones_a_1d_COMPLEX);
-    // RUN_TEST(test_ones_a_2d_COMPLEX);
-    // RUN_TEST(test_ones_a_3d_COMPLEX);
-    // RUN_TEST(test_set_element_a_DOUBLE);
-    // RUN_TEST(test_set_element_a_INT);
-    // RUN_TEST(test_set_element_a_FLOAT);
-    // RUN_TEST(test_set_element_a_COMPLEX);
-    // RUN_TEST(test_set_a_1d_DOUBLE);
-    // RUN_TEST(test_set_a_1d_INT);
-    // RUN_TEST(test_set_a_1d_FLOAT);
-    // RUN_TEST(test_set_a_1d_COMPLEX);
-    // RUN_TEST(test_set_a_2d_DOUBLE);
-    // RUN_TEST(test_set_a_2d_INT);
-    // RUN_TEST(test_set_a_2d_FLOAT);
-    // RUN_TEST(test_set_a_2d_COMPLEX);
-    // RUN_TEST(test_set_a_3d_DOUBLE);
-    // RUN_TEST(test_set_a_3d_INT);
-    // RUN_TEST(test_set_a_3d_FLOAT);
-    // RUN_TEST(test_set_a_3d_COMPLEX);
-    // RUN_TEST(test_multiply_a_DOUBLE_DOUBLE);
-    // RUN_TEST(test_multiply_a_INT_INT);
-    // RUN_TEST(test_multiply_a_FLOAT_FLOAT);
-    // RUN_TEST(test_multiply_a_COMPLEX_COMPLEX);
-    // RUN_TEST(test_multiply_a_COMPLEX_DOUBLE);
-    // RUN_TEST(test_multiply_a_COMPLEX_INT);
-    // RUN_TEST(test_multiply_a_COMPLEX_FLOAT);
-    // RUN_TEST(test_divide_a_DOUBLE_DOUBLE);
-    // RUN_TEST(test_divide_a_INT_INT);
-    // RUN_TEST(test_divide_a_FLOAT_FLOAT);
-    // RUN_TEST(test_divide_a_COMPLEX_COMPLEX);
-    // RUN_TEST(test_divide_a_COMPLEX_DOUBLE);
-    // RUN_TEST(test_divide_a_COMPLEX_INT);
-    // RUN_TEST(test_divide_a_COMPLEX_FLOAT);
-    // RUN_TEST(test_addition_a_DOUBLE_DOUBLE);
-    // RUN_TEST(test_addition_a_INT_INT);
-    // RUN_TEST(test_addition_a_FLOAT_FLOAT);
-    // RUN_TEST(test_addition_a_COMPLEX_COMPLEX);
-    // RUN_TEST(test_addition_a_COMPLEX_DOUBLE);
-    // RUN_TEST(test_addition_a_COMPLEX_INT);
-    // RUN_TEST(test_addition_a_COMPLEX_FLOAT);
-    // RUN_TEST(test_minus_a_DOUBLE_DOUBLE);
-    // RUN_TEST(test_minus_a_INT_INT);
-    // RUN_TEST(test_minus_a_FLOAT_FLOAT);
-    // RUN_TEST(test_minus_a_COMPLEX_COMPLEX);
-    // RUN_TEST(test_minus_a_COMPLEX_DOUBLE);
-    // RUN_TEST(test_minus_a_COMPLEX_INT);
-    // RUN_TEST(test_minus_a_COMPLEX_FLOAT);
-    // RUN_TEST(test_get_2d_index_a);
-    // RUN_TEST(test_get_3d_index_a);
-    // RUN_TEST(test_get_size_a_1d);
-    // RUN_TEST(test_get_size_a_2d);
-    // RUN_TEST(test_get_size_a_3d);
-    // RUN_TEST(test_linspace_a_DOUBLE);
-    // RUN_TEST(test_linspace_a_FLOAT);
-    // RUN_TEST(test_multiply_constant_a_DOUBLE);
-    // RUN_TEST(test_multiply_constant_a_INT);
-    // RUN_TEST(test_multiply_constant_a_FLOAT);
-    // RUN_TEST(test_multiply_constant_a_COMPLEX_DOUBLE);
-    // RUN_TEST(test_multiply_constant_a_COMPLEX_INT);
-    // RUN_TEST(test_multiply_constant_a_COMPLEX_FLOAT);
-    // RUN_TEST(test_multiply_constant_a_COMPLEX_COMPLEX);
-    // RUN_TEST(test_division_constant_a_DOUBLE);
-    // RUN_TEST(test_division_constant_a_INT);
-    // RUN_TEST(test_division_constant_a_FLOAT);
-    // RUN_TEST(test_division_constant_a_COMPLEX_DOUBLE);
-    // RUN_TEST(test_division_constant_a_COMPLEX_INT);
-    // RUN_TEST(test_division_constant_a_COMPLEX_FLOAT);
-    // RUN_TEST(test_division_constant_a_COMPLEX_COMPLEX);
-    // RUN_TEST(test_minus_constant_a_DOUBLE);
-    // RUN_TEST(test_minus_constant_a_INT);
-    // RUN_TEST(test_minus_constant_a_FLOAT);
-    // RUN_TEST(test_minus_constant_a_COMPLEX_DOUBLE);
-    // RUN_TEST(test_minus_constant_a_COMPLEX_INT);
-    // RUN_TEST(test_minus_constant_a_COMPLEX_FLOAT);
-    // RUN_TEST(test_minus_constant_a_COMPLEX_COMPLEX);
-    // RUN_TEST(test_addition_constant_a_DOUBLE);
-    // RUN_TEST(test_addition_constant_a_INT);
-    // RUN_TEST(test_addition_constant_a_FLOAT);
-    // RUN_TEST(test_addition_constant_a_COMPLEX_DOUBLE);
-    // RUN_TEST(test_addition_constant_a_COMPLEX_INT);
-    // RUN_TEST(test_addition_constant_a_COMPLEX_FLOAT);
-    // RUN_TEST(test_addition_constant_a_COMPLEX_COMPLEX);
-    // RUN_TEST(test_max_a_DOUBLE);
-    // RUN_TEST(test_max_a_INT);
-    // RUN_TEST(test_max_a_FLOAT);
-    // RUN_TEST(test_min_a_DOUBLE);
-    // RUN_TEST(test_min_a_INT);
-    // RUN_TEST(test_min_a_FLOAT);
-    // RUN_TEST(test_amax_a_DOUBLE);
-    // RUN_TEST(test_amax_a_INT);
-    // RUN_TEST(test_amax_a_FLOAT);
-    // RUN_TEST(test_copy_over_1d_DOUBLE);
-    // RUN_TEST(test_copy_over_1d_INT);
-    // RUN_TEST(test_copy_over_1d_FLOAT);
-    // RUN_TEST(test_copy_over_1d_COMPLEX);
-    // RUN_TEST(test_copy_over_2d_to_1d_1_0_DOUBLE);
-    // RUN_TEST(test_copy_over_2d_to_1d_1_0_INT);
-    // RUN_TEST(test_copy_over_2d_to_1d_1_0_FLOAT);
-    // RUN_TEST(test_copy_over_2d_to_1d_1_0_COMPLEX);
-    // RUN_TEST(test_copy_over_2d_to_1d_0_1_DOUBLE);
-    // RUN_TEST(test_copy_over_2d_to_1d_0_1_INT);
-    // RUN_TEST(test_copy_over_2d_to_1d_0_1_FLOAT);
-    // RUN_TEST(test_copy_over_2d_to_1d_0_1_COMPLEX);
-    // RUN_TEST(test_copy_over_2d_to_2d_1_1_to_1_1_DOUBLE);
-    // RUN_TEST(test_copy_over_2d_to_2d_1_1_to_1_1_INT);
-    // RUN_TEST(test_copy_over_2d_to_2d_1_1_to_1_1_FLOAT);
-    // RUN_TEST(test_copy_over_2d_to_2d_1_1_to_1_1_COMPLEX);
-    // RUN_TEST(test_copy_over_2d_to_2d_1_0_to_1_0);
-    // RUN_TEST(test_copy_over_2d_to_2d_0_1_to_0_1);
-    // RUN_TEST(test_copy_over_2d_to_2d_0_1_to_1_0);
-    // RUN_TEST(test_copy_over_2d_to_2d_1_0_to_0_1);
-    // RUN_TEST(test_copy_over_3d_to_1d_1_0_0_to_1);
-    // RUN_TEST(test_copy_over_3d_to_1d_0_1_0_to_1);
-    // RUN_TEST(test_copy_over_3d_to_1d_0_0_1_to_1);
-    // RUN_TEST(test_copy_over_3d_to_2d_1_1_0_to_1_1);
-    // RUN_TEST(test_copy_over_3d_to_2d_1_0_1_to_1_1);
-    // RUN_TEST(test_copy_over_3d_to_2d_0_1_1_to_1_1);
-    // RUN_TEST(test_copy_over_3d_to_2d_0_0_1_to_0_1);
-    // RUN_TEST(test_copy_over_3d_to_2d_0_0_1_to_1_0);
-    // RUN_TEST(test_copy_over_3d_to_2d_0_1_0_to_0_1);
-    // RUN_TEST(test_copy_over_3d_to_2d_0_1_0_to_1_0);
-    // RUN_TEST(test_copy_over_3d_to_2d_1_0_0_to_0_1);
-    // RUN_TEST(test_copy_over_3d_to_2d_1_0_0_to_1_0);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_1_1_to_1_1_1_DOUBLE);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_1_1_to_1_1_1_INT);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_1_1_to_1_1_1_FLOAT);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_1_1_to_1_1_1_COMPLEX);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_1_0_to_1_1_0);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_1_0_to_1_0_1);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_1_0_to_0_1_1);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_0_1_to_1_1_0);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_0_1_to_1_0_1);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_0_1_to_0_1_1);
-    // RUN_TEST(test_copy_over_3d_to_3d_0_1_1_to_1_1_0);
-    // RUN_TEST(test_copy_over_3d_to_3d_0_1_1_to_1_0_1);
-    // RUN_TEST(test_copy_over_3d_to_3d_0_1_1_to_0_1_1);
-    // RUN_TEST(test_copy_over_3d_to_3d_0_0_1_to_0_1_0);
-    // RUN_TEST(test_copy_over_3d_to_3d_0_0_1_to_1_0_0);
-    // RUN_TEST(test_copy_over_3d_to_3d_0_0_1_to_0_0_1);
-    // RUN_TEST(test_copy_over_3d_to_3d_0_1_0_to_0_1_0);
-    // RUN_TEST(test_copy_over_3d_to_3d_0_1_0_to_1_0_0);
-    // RUN_TEST(test_copy_over_3d_to_3d_0_1_0_to_0_0_1);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_0_0_to_0_1_0);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_0_0_to_1_0_0);
-    // RUN_TEST(test_copy_over_3d_to_3d_1_0_0_to_0_0_1);
-    // RUN_TEST(test_dot_a_1d_double_1d_double);
-    // RUN_TEST(test_dot_a_1d_double_1d_complex);
-    // RUN_TEST(test_dot_a_1d_int_1d_int);
-    // RUN_TEST(test_dot_a_1d_int_1d_complex);
-    // RUN_TEST(test_dot_a_1d_float_1d_float);
-    // RUN_TEST(test_dot_a_1d_float_1d_complex);
-    // RUN_TEST(test_dot_a_1d_complex_1d_double);
-    // RUN_TEST(test_dot_a_1d_complex_1d_int);
-    // RUN_TEST(test_dot_a_1d_complex_1d_float);
-    // RUN_TEST(test_dot_a_1d_complex_1d_complex);
-    // RUN_TEST(test_dot_a_1d_double_2d_double);
-    // RUN_TEST(test_dot_a_1d_double_2d_complex);
-    // RUN_TEST(test_dot_a_1d_int_2d_int);
-    // RUN_TEST(test_dot_a_1d_int_2d_complex);
-    // RUN_TEST(test_dot_a_1d_float_2d_float);
-    // RUN_TEST(test_dot_a_1d_float_2d_complex);
-    // RUN_TEST(test_dot_a_1d_complex_2d_double);
-    // RUN_TEST(test_dot_a_1d_complex_2d_int);
-    // RUN_TEST(test_dot_a_1d_complex_2d_float);
-    // RUN_TEST(test_dot_a_1d_complex_2d_complex);
-    // RUN_TEST(test_dot_a_2d_double_1d_double);
-    // RUN_TEST(test_dot_a_2d_double_1d_complex);
-    // RUN_TEST(test_dot_a_2d_int_1d_int);
-    // RUN_TEST(test_dot_a_2d_int_1d_complex);
-    // RUN_TEST(test_dot_a_2d_float_1d_float);
-    // RUN_TEST(test_dot_a_2d_float_1d_complex);
-    // RUN_TEST(test_dot_a_2d_complex_1d_double);
-    // RUN_TEST(test_dot_a_2d_complex_1d_int);
-    // RUN_TEST(test_dot_a_2d_complex_1d_float);
-    // RUN_TEST(test_dot_a_2d_complex_1d_complex);
-    // RUN_TEST(test_dot_a_2d_double_2d_double);
-    // RUN_TEST(test_dot_a_2d_double_2d_complex);
-    // RUN_TEST(test_dot_a_2d_int_2d_int);
-    // RUN_TEST(test_dot_a_2d_int_2d_complex);
-    // RUN_TEST(test_dot_a_2d_float_2d_float);
-    // RUN_TEST(test_dot_a_2d_float_2d_complex);
-    // RUN_TEST(test_dot_a_2d_complex_2d_double);
-    // RUN_TEST(test_dot_a_2d_complex_2d_int);
-    // RUN_TEST(test_dot_a_2d_complex_2d_float);
-    // RUN_TEST(test_dot_a_2d_complex_2d_complex);
-    // RUN_TEST(diag_a_1d_double);
-    // RUN_TEST(diag_a_1d_int);
-    // RUN_TEST(diag_a_1d_float);
-    // RUN_TEST(diag_a_1d_complex);
-    // RUN_TEST(diag_a_2d_double_1_0);
-    // RUN_TEST(diag_a_2d_int_1_0);
-    // RUN_TEST(diag_a_2d_float_1_0);
-    // RUN_TEST(diag_a_2d_complex_1_0);
-    // RUN_TEST(diag_a_2d_double_0_1);
-    // RUN_TEST(diag_a_2d_int_0_1);
-    // RUN_TEST(diag_a_2d_float_0_1);
-    // RUN_TEST(diag_a_2d_complex_0_1);
-    // RUN_TEST(diag_a_3d_double_1_0_0);
-    // RUN_TEST(diag_a_3d_int_1_0_0);
-    // RUN_TEST(diag_a_3d_float_1_0_0);
-    // RUN_TEST(diag_a_3d_complex_1_0_0);
-    // RUN_TEST(diag_a_3d_double_0_1_0);
-    // RUN_TEST(diag_a_3d_int_0_1_0);
-    // RUN_TEST(diag_a_3d_float_0_1_0);
-    // RUN_TEST(diag_a_3d_complex_0_1_0);
-    // RUN_TEST(slice_a_2d_1_0_DOUBLE);
-    // RUN_TEST(slice_a_2d_1_0_INT);
-    // RUN_TEST(slice_a_2d_1_0_FLOAT);
-    // RUN_TEST(slice_a_2d_1_0_COMPLEX);
-    // RUN_TEST(slice_a_2d_0_1_DOUBLE);
-    // RUN_TEST(slice_a_2d_0_1_INT);
-    // RUN_TEST(slice_a_2d_0_1_FLOAT);
-    // RUN_TEST(slice_a_2d_0_1_COMPLEX);
-    // RUN_TEST(slice_a_3d_1_0_0_DOUBLE);
-    // RUN_TEST(slice_a_3d_1_0_0_INT);
-    // RUN_TEST(slice_a_3d_1_0_0_FLOAT);
-    // RUN_TEST(slice_a_3d_1_0_0_COMPLEX);
-    // RUN_TEST(slice_a_3d_0_1_0_DOUBLE);
-    // RUN_TEST(slice_a_3d_0_1_0_INT);
-    // RUN_TEST(slice_a_3d_0_1_0_FLOAT);
-    // RUN_TEST(slice_a_3d_0_0_1_COMPLEX);
-    // RUN_TEST(slice_a_3d_0_0_1_DOUBLE);
-    // RUN_TEST(slice_a_3d_0_0_1_INT);
-    // RUN_TEST(slice_a_3d_0_0_1_FLOAT);
-    // RUN_TEST(slice_a_3d_0_0_1_COMPLEX);
-    // RUN_TEST(slice_a_3d_1_1_0_DOUBLE);
-    // RUN_TEST(slice_a_3d_1_1_0_INT);
-    // RUN_TEST(slice_a_3d_1_1_0_FLOAT);
-    // RUN_TEST(slice_a_3d_1_1_0_COMPLEX);
-    // RUN_TEST(slice_a_3d_1_0_1_DOUBLE);
-    // RUN_TEST(slice_a_3d_1_0_1_INT);
-    // RUN_TEST(slice_a_3d_1_0_1_FLOAT);
-    // RUN_TEST(slice_a_3d_1_0_1_COMPLEX);
-    // RUN_TEST(slice_a_3d_0_1_1_DOUBLE);
-    // RUN_TEST(slice_a_3d_0_1_1_INT);
-    // RUN_TEST(slice_a_3d_0_1_1_FLOAT);
-    // RUN_TEST(slice_a_3d_0_1_1_COMPLEX);
-    // RUN_TEST(test_conjugate_a);
-    // RUN_TEST(test_fill_diagonal_a_2d_double);
-    // RUN_TEST(test_fill_diagonal_a_2d_int);
-    // RUN_TEST(test_fill_diagonal_a_2d_float);
-    // RUN_TEST(test_fill_diagonal_a_2d_complex);
-    // RUN_TEST(test_mean_a_double);
-    // RUN_TEST(test_mean_a_int);
-    // RUN_TEST(test_mean_a_float);
-    // RUN_TEST(test_mean_a_complex);
-    // RUN_TEST(test_outer_a_double);
-    // RUN_TEST(test_outer_a_int);
-    // RUN_TEST(test_outer_a_float);
-    // RUN_TEST(test_outer_a_complex);
-    // RUN_TEST(test_harmard_element_wise_inverse_a);
-    // RUN_TEST(test_diag_harmard_element_wise_inverse_a);
-    // RUN_TEST(test_transpose_a_double_1);
-    // RUN_TEST(test_transpose_a_double_2);
-    // RUN_TEST(test_transpose_a_double_3);
-    // RUN_TEST(test_transpose_a_int_1);
-    // RUN_TEST(test_transpose_a_int_2);
-    // RUN_TEST(test_transpose_a_int_3);
-    // RUN_TEST(test_transpose_a_float_1);
-    // RUN_TEST(test_transpose_a_float_2);
-    // RUN_TEST(test_transpose_a_float_3);
-    // RUN_TEST(test_transpose_a_complex_1);
-    // RUN_TEST(test_transpose_a_complex_2);
-    // RUN_TEST(test_transpose_a_complex_3);
-    // RUN_TEST(test_save_to_file_a_double);
-    // RUN_TEST(test_save_to_file_a_int);
-    // RUN_TEST(test_save_to_file_a_float);
-    // RUN_TEST(test_save_to_file_a_complex);
-    // RUN_TEST(test_read_from_file_a_double);
-    // RUN_TEST(test_read_from_file_a_int);
-    // RUN_TEST(test_read_from_file_a_float);
-    // RUN_TEST(test_read_from_file_a_complex);
-    // RUN_TEST(test_std_a_double);
-    // RUN_TEST(test_std_a_int);
-    // RUN_TEST(test_std_a_float);
-    // RUN_TEST(test_std_a_complex);
-    // RUN_TEST(test_equal_a_double);
-    // RUN_TEST(test_equal_a_int);
-    // RUN_TEST(test_equal_a_float);
-    // RUN_TEST(test_equal_a_complex);
-    // RUN_TEST(test_reciprocal_a_double);
-    // RUN_TEST(test_reciprocal_a_float);
-    // RUN_TEST(test_reciprocal_a_int);
-    // RUN_TEST(test_diag_reciprocal_a_double);
-    // RUN_TEST(test_diag_reciprocal_a_float);
-    // RUN_TEST(test_diag_reciprocal_a_int);
-    // RUN_TEST(test_real_a);
-    // RUN_TEST(test_imag_a);
-    // RUN_TEST(test_contains_double_true);
-    // RUN_TEST(test_contains_double_false);
-    // RUN_TEST(test_contains_int_true);
-    // RUN_TEST(test_contains_int_false);
-    // RUN_TEST(test_contains_float_true);
-    // RUN_TEST(test_contains_float_false);
-    // RUN_TEST(test_contains_complex_true);
-    // RUN_TEST(test_contains_complex_false);
-    // RUN_TEST(test_index_of_element_double_true);
-    // RUN_TEST(test_index_of_element_double_false);
-    // RUN_TEST(test_index_of_element_int_true);
-    // RUN_TEST(test_index_of_element_int_false);
-    // RUN_TEST(test_index_of_element_float_true);
-    // RUN_TEST(test_index_of_element_float_false);
-    // RUN_TEST(test_index_of_element_complex_true);
-    // RUN_TEST(test_index_of_element_complex_false);
-    // RUN_TEST(test_norm_a_double);
-    // RUN_TEST(test_norm_a_int);
-    // RUN_TEST(test_norm_a_float);
-    // RUN_TEST(test_norm_a_complex);
-    // RUN_TEST(test_svd_a_complex);
-    // RUN_TEST(test_pinv_a_complex);
-    // RUN_TEST(test_abs_a_double);
-    // RUN_TEST(test_abs_a_int);
-    // RUN_TEST(test_abs_a_float);
-    // RUN_TEST(test_abs_a_complex);
-    // RUN_TEST(test_power_a_double);
-    // RUN_TEST(test_power_a_int);
-    // RUN_TEST(test_power_a_float);
-    // RUN_TEST(test_power_a_complex);
-    // RUN_TEST(test_sqrt_a_double);
-    // RUN_TEST(test_sqrt_a_int);
-    // RUN_TEST(test_sqrt_a_float);
-    // RUN_TEST(test_sqrt_a_complex);
-//     return UNITY_END();
-// }
+int run_array_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_new_a_1d_DOUBLE);
+    RUN_TEST(test_new_a_1d_INT);
+    RUN_TEST(test_new_a_1d_FLOAT);
+    RUN_TEST(test_new_a_1d_COMPLEX);
+    RUN_TEST(test_new_a_2d_DOUBLE);
+    RUN_TEST(test_new_a_2d_INT);
+    RUN_TEST(test_new_a_2d_FLOAT);
+    RUN_TEST(test_new_a_2d_COMPLEX);
+    RUN_TEST(test_new_a_3d_DOUBLE);
+    RUN_TEST(test_new_a_3d_INT);
+    RUN_TEST(test_new_a_3d_FLOAT);
+    RUN_TEST(test_new_a_3d_COMPLEX);
+    RUN_TEST(test_get_size_1d);
+    RUN_TEST(test_get_size_2d);
+    RUN_TEST(test_get_size_3d);
+    RUN_TEST(test_get_a);
+    RUN_TEST(test_get_element_a);
+    RUN_TEST(test_zeros_a_1d_DOUBLE);
+    RUN_TEST(test_zeros_a_2d_DOUBLE);
+    RUN_TEST(test_zeros_a_3d_DOUBLE);
+    RUN_TEST(test_zeros_a_1d_INT);
+    RUN_TEST(test_zeros_a_2d_INT);
+    RUN_TEST(test_zeros_a_3d_INT);
+    RUN_TEST(test_zeros_a_1d_FLOAT);
+    RUN_TEST(test_zeros_a_2d_FLOAT);
+    RUN_TEST(test_zeros_a_3d_FLOAT);
+    RUN_TEST(test_zeros_a_1d_COMPLEX);
+    RUN_TEST(test_zeros_a_2d_COMPLEX);
+    RUN_TEST(test_zeros_a_3d_COMPLEX);
+    RUN_TEST(test_ones_a_1d_DOUBLE);
+    RUN_TEST(test_ones_a_2d_DOUBLE);
+    RUN_TEST(test_ones_a_3d_DOUBLE);
+    RUN_TEST(test_ones_a_1d_INT);
+    RUN_TEST(test_ones_a_2d_INT);
+    RUN_TEST(test_ones_a_3d_INT);
+    RUN_TEST(test_ones_a_1d_FLOAT);
+    RUN_TEST(test_ones_a_2d_FLOAT);
+    RUN_TEST(test_ones_a_3d_FLOAT);
+    RUN_TEST(test_ones_a_1d_COMPLEX);
+    RUN_TEST(test_ones_a_2d_COMPLEX);
+    RUN_TEST(test_ones_a_3d_COMPLEX);
+    RUN_TEST(test_set_element_a_DOUBLE);
+    RUN_TEST(test_set_element_a_INT);
+    RUN_TEST(test_set_element_a_FLOAT);
+    RUN_TEST(test_set_element_a_COMPLEX);
+    RUN_TEST(test_set_a_1d_DOUBLE);
+    RUN_TEST(test_set_a_1d_INT);
+    RUN_TEST(test_set_a_1d_FLOAT);
+    RUN_TEST(test_set_a_1d_COMPLEX);
+    RUN_TEST(test_set_a_2d_DOUBLE);
+    RUN_TEST(test_set_a_2d_INT);
+    RUN_TEST(test_set_a_2d_FLOAT);
+    RUN_TEST(test_set_a_2d_COMPLEX);
+    RUN_TEST(test_set_a_3d_DOUBLE);
+    RUN_TEST(test_set_a_3d_INT);
+    RUN_TEST(test_set_a_3d_FLOAT);
+    RUN_TEST(test_set_a_3d_COMPLEX);
+    RUN_TEST(test_multiply_a_DOUBLE_DOUBLE);
+    RUN_TEST(test_multiply_a_INT_INT);
+    RUN_TEST(test_multiply_a_FLOAT_FLOAT);
+    RUN_TEST(test_multiply_a_COMPLEX_COMPLEX);
+    RUN_TEST(test_multiply_a_COMPLEX_DOUBLE);
+    RUN_TEST(test_multiply_a_COMPLEX_INT);
+    RUN_TEST(test_multiply_a_COMPLEX_FLOAT);
+    RUN_TEST(test_divide_a_DOUBLE_DOUBLE);
+    RUN_TEST(test_divide_a_INT_INT);
+    RUN_TEST(test_divide_a_FLOAT_FLOAT);
+    RUN_TEST(test_divide_a_COMPLEX_COMPLEX);
+    RUN_TEST(test_divide_a_COMPLEX_DOUBLE);
+    RUN_TEST(test_divide_a_COMPLEX_INT);
+    RUN_TEST(test_divide_a_COMPLEX_FLOAT);
+    RUN_TEST(test_addition_a_DOUBLE_DOUBLE);
+    RUN_TEST(test_addition_a_INT_INT);
+    RUN_TEST(test_addition_a_FLOAT_FLOAT);
+    RUN_TEST(test_addition_a_COMPLEX_COMPLEX);
+    RUN_TEST(test_addition_a_COMPLEX_DOUBLE);
+    RUN_TEST(test_addition_a_COMPLEX_INT);
+    RUN_TEST(test_addition_a_COMPLEX_FLOAT);
+    RUN_TEST(test_minus_a_DOUBLE_DOUBLE);
+    RUN_TEST(test_minus_a_INT_INT);
+    RUN_TEST(test_minus_a_FLOAT_FLOAT);
+    RUN_TEST(test_minus_a_COMPLEX_COMPLEX);
+    RUN_TEST(test_minus_a_COMPLEX_DOUBLE);
+    RUN_TEST(test_minus_a_COMPLEX_INT);
+    RUN_TEST(test_minus_a_COMPLEX_FLOAT);
+    RUN_TEST(test_get_2d_index_a);
+    RUN_TEST(test_get_3d_index_a);
+    RUN_TEST(test_get_size_a_1d);
+    RUN_TEST(test_get_size_a_2d);
+    RUN_TEST(test_get_size_a_3d);
+    RUN_TEST(test_linspace_a_DOUBLE);
+    RUN_TEST(test_linspace_a_FLOAT);
+    RUN_TEST(test_multiply_constant_a_DOUBLE);
+    RUN_TEST(test_multiply_constant_a_INT);
+    RUN_TEST(test_multiply_constant_a_FLOAT);
+    RUN_TEST(test_multiply_constant_a_COMPLEX_DOUBLE);
+    RUN_TEST(test_multiply_constant_a_COMPLEX_INT);
+    RUN_TEST(test_multiply_constant_a_COMPLEX_FLOAT);
+    RUN_TEST(test_multiply_constant_a_COMPLEX_COMPLEX);
+    RUN_TEST(test_division_constant_a_DOUBLE);
+    RUN_TEST(test_division_constant_a_INT);
+    RUN_TEST(test_division_constant_a_FLOAT);
+    RUN_TEST(test_division_constant_a_COMPLEX_DOUBLE);
+    RUN_TEST(test_division_constant_a_COMPLEX_INT);
+    RUN_TEST(test_division_constant_a_COMPLEX_FLOAT);
+    RUN_TEST(test_division_constant_a_COMPLEX_COMPLEX);
+    RUN_TEST(test_minus_constant_a_DOUBLE);
+    RUN_TEST(test_minus_constant_a_INT);
+    RUN_TEST(test_minus_constant_a_FLOAT);
+    RUN_TEST(test_minus_constant_a_COMPLEX_DOUBLE);
+    RUN_TEST(test_minus_constant_a_COMPLEX_INT);
+    RUN_TEST(test_minus_constant_a_COMPLEX_FLOAT);
+    RUN_TEST(test_minus_constant_a_COMPLEX_COMPLEX);
+    RUN_TEST(test_addition_constant_a_DOUBLE);
+    RUN_TEST(test_addition_constant_a_INT);
+    RUN_TEST(test_addition_constant_a_FLOAT);
+    RUN_TEST(test_addition_constant_a_COMPLEX_DOUBLE);
+    RUN_TEST(test_addition_constant_a_COMPLEX_INT);
+    RUN_TEST(test_addition_constant_a_COMPLEX_FLOAT);
+    RUN_TEST(test_addition_constant_a_COMPLEX_COMPLEX);
+    RUN_TEST(test_max_a_DOUBLE);
+    RUN_TEST(test_max_a_INT);
+    RUN_TEST(test_max_a_FLOAT);
+    RUN_TEST(test_min_a_DOUBLE);
+    RUN_TEST(test_min_a_INT);
+    RUN_TEST(test_min_a_FLOAT);
+    RUN_TEST(test_amax_a_DOUBLE);
+    RUN_TEST(test_amax_a_INT);
+    RUN_TEST(test_amax_a_FLOAT);
+    RUN_TEST(test_copy_over_1d_DOUBLE);
+    RUN_TEST(test_copy_over_1d_INT);
+    RUN_TEST(test_copy_over_1d_FLOAT);
+    RUN_TEST(test_copy_over_1d_COMPLEX);
+    RUN_TEST(test_copy_over_2d_to_1d_1_0_DOUBLE);
+    RUN_TEST(test_copy_over_2d_to_1d_1_0_INT);
+    RUN_TEST(test_copy_over_2d_to_1d_1_0_FLOAT);
+    RUN_TEST(test_copy_over_2d_to_1d_1_0_COMPLEX);
+    RUN_TEST(test_copy_over_2d_to_1d_0_1_DOUBLE);
+    RUN_TEST(test_copy_over_2d_to_1d_0_1_INT);
+    RUN_TEST(test_copy_over_2d_to_1d_0_1_FLOAT);
+    RUN_TEST(test_copy_over_2d_to_1d_0_1_COMPLEX);
+    RUN_TEST(test_copy_over_2d_to_2d_1_1_to_1_1_DOUBLE);
+    RUN_TEST(test_copy_over_2d_to_2d_1_1_to_1_1_INT);
+    RUN_TEST(test_copy_over_2d_to_2d_1_1_to_1_1_FLOAT);
+    RUN_TEST(test_copy_over_2d_to_2d_1_1_to_1_1_COMPLEX);
+    RUN_TEST(test_copy_over_2d_to_2d_1_0_to_1_0);
+    RUN_TEST(test_copy_over_2d_to_2d_0_1_to_0_1);
+    RUN_TEST(test_copy_over_2d_to_2d_0_1_to_1_0);
+    RUN_TEST(test_copy_over_2d_to_2d_1_0_to_0_1);
+    RUN_TEST(test_copy_over_3d_to_1d_1_0_0_to_1);
+    RUN_TEST(test_copy_over_3d_to_1d_0_1_0_to_1);
+    RUN_TEST(test_copy_over_3d_to_1d_0_0_1_to_1);
+    RUN_TEST(test_copy_over_3d_to_2d_1_1_0_to_1_1);
+    RUN_TEST(test_copy_over_3d_to_2d_1_0_1_to_1_1);
+    RUN_TEST(test_copy_over_3d_to_2d_0_1_1_to_1_1);
+    RUN_TEST(test_copy_over_3d_to_2d_0_0_1_to_0_1);
+    RUN_TEST(test_copy_over_3d_to_2d_0_0_1_to_1_0);
+    RUN_TEST(test_copy_over_3d_to_2d_0_1_0_to_0_1);
+    RUN_TEST(test_copy_over_3d_to_2d_0_1_0_to_1_0);
+    RUN_TEST(test_copy_over_3d_to_2d_1_0_0_to_0_1);
+    RUN_TEST(test_copy_over_3d_to_2d_1_0_0_to_1_0);
+    RUN_TEST(test_copy_over_3d_to_3d_1_1_1_to_1_1_1_DOUBLE);
+    RUN_TEST(test_copy_over_3d_to_3d_1_1_1_to_1_1_1_INT);
+    RUN_TEST(test_copy_over_3d_to_3d_1_1_1_to_1_1_1_FLOAT);
+    RUN_TEST(test_copy_over_3d_to_3d_1_1_1_to_1_1_1_COMPLEX);
+    RUN_TEST(test_copy_over_3d_to_3d_1_1_0_to_1_1_0);
+    RUN_TEST(test_copy_over_3d_to_3d_1_1_0_to_1_0_1);
+    RUN_TEST(test_copy_over_3d_to_3d_1_1_0_to_0_1_1);
+    RUN_TEST(test_copy_over_3d_to_3d_1_0_1_to_1_1_0);
+    RUN_TEST(test_copy_over_3d_to_3d_1_0_1_to_1_0_1);
+    RUN_TEST(test_copy_over_3d_to_3d_1_0_1_to_0_1_1);
+    RUN_TEST(test_copy_over_3d_to_3d_0_1_1_to_1_1_0);
+    RUN_TEST(test_copy_over_3d_to_3d_0_1_1_to_1_0_1);
+    RUN_TEST(test_copy_over_3d_to_3d_0_1_1_to_0_1_1);
+    RUN_TEST(test_copy_over_3d_to_3d_0_0_1_to_0_1_0);
+    RUN_TEST(test_copy_over_3d_to_3d_0_0_1_to_1_0_0);
+    RUN_TEST(test_copy_over_3d_to_3d_0_0_1_to_0_0_1);
+    RUN_TEST(test_copy_over_3d_to_3d_0_1_0_to_0_1_0);
+    RUN_TEST(test_copy_over_3d_to_3d_0_1_0_to_1_0_0);
+    RUN_TEST(test_copy_over_3d_to_3d_0_1_0_to_0_0_1);
+    RUN_TEST(test_copy_over_3d_to_3d_1_0_0_to_0_1_0);
+    RUN_TEST(test_copy_over_3d_to_3d_1_0_0_to_1_0_0);
+    RUN_TEST(test_copy_over_3d_to_3d_1_0_0_to_0_0_1);
+    RUN_TEST(test_dot_a_1d_double_1d_double);
+    RUN_TEST(test_dot_a_1d_double_1d_complex);
+    RUN_TEST(test_dot_a_1d_int_1d_int);
+    RUN_TEST(test_dot_a_1d_int_1d_complex);
+    RUN_TEST(test_dot_a_1d_float_1d_float);
+    RUN_TEST(test_dot_a_1d_float_1d_complex);
+    RUN_TEST(test_dot_a_1d_complex_1d_double);
+    RUN_TEST(test_dot_a_1d_complex_1d_int);
+    RUN_TEST(test_dot_a_1d_complex_1d_float);
+    RUN_TEST(test_dot_a_1d_complex_1d_complex);
+    RUN_TEST(test_dot_a_1d_double_2d_double);
+    RUN_TEST(test_dot_a_1d_double_2d_complex);
+    RUN_TEST(test_dot_a_1d_int_2d_int);
+    RUN_TEST(test_dot_a_1d_int_2d_complex);
+    RUN_TEST(test_dot_a_1d_float_2d_float);
+    RUN_TEST(test_dot_a_1d_float_2d_complex);
+    RUN_TEST(test_dot_a_1d_complex_2d_double);
+    RUN_TEST(test_dot_a_1d_complex_2d_int);
+    RUN_TEST(test_dot_a_1d_complex_2d_float);
+    RUN_TEST(test_dot_a_1d_complex_2d_complex);
+    RUN_TEST(test_dot_a_2d_double_1d_double);
+    RUN_TEST(test_dot_a_2d_double_1d_complex);
+    RUN_TEST(test_dot_a_2d_int_1d_int);
+    RUN_TEST(test_dot_a_2d_int_1d_complex);
+    RUN_TEST(test_dot_a_2d_float_1d_float);
+    RUN_TEST(test_dot_a_2d_float_1d_complex);
+    RUN_TEST(test_dot_a_2d_complex_1d_double);
+    RUN_TEST(test_dot_a_2d_complex_1d_int);
+    RUN_TEST(test_dot_a_2d_complex_1d_float);
+    RUN_TEST(test_dot_a_2d_complex_1d_complex);
+    RUN_TEST(test_dot_a_2d_double_2d_double);
+    RUN_TEST(test_dot_a_2d_double_2d_complex);
+    RUN_TEST(test_dot_a_2d_int_2d_int);
+    RUN_TEST(test_dot_a_2d_int_2d_complex);
+    RUN_TEST(test_dot_a_2d_float_2d_float);
+    RUN_TEST(test_dot_a_2d_float_2d_complex);
+    RUN_TEST(test_dot_a_2d_complex_2d_double);
+    RUN_TEST(test_dot_a_2d_complex_2d_int);
+    RUN_TEST(test_dot_a_2d_complex_2d_float);
+    RUN_TEST(test_dot_a_2d_complex_2d_complex);
+    RUN_TEST(diag_a_1d_double);
+    RUN_TEST(diag_a_1d_int);
+    RUN_TEST(diag_a_1d_float);
+    RUN_TEST(diag_a_1d_complex);
+    RUN_TEST(diag_a_2d_double_1_0);
+    RUN_TEST(diag_a_2d_int_1_0);
+    RUN_TEST(diag_a_2d_float_1_0);
+    RUN_TEST(diag_a_2d_complex_1_0);
+    RUN_TEST(diag_a_2d_double_0_1);
+    RUN_TEST(diag_a_2d_int_0_1);
+    RUN_TEST(diag_a_2d_float_0_1);
+    RUN_TEST(diag_a_2d_complex_0_1);
+    RUN_TEST(diag_a_3d_double_1_0_0);
+    RUN_TEST(diag_a_3d_int_1_0_0);
+    RUN_TEST(diag_a_3d_float_1_0_0);
+    RUN_TEST(diag_a_3d_complex_1_0_0);
+    RUN_TEST(diag_a_3d_double_0_1_0);
+    RUN_TEST(diag_a_3d_int_0_1_0);
+    RUN_TEST(diag_a_3d_float_0_1_0);
+    RUN_TEST(diag_a_3d_complex_0_1_0);
+    RUN_TEST(slice_a_2d_1_0_DOUBLE);
+    RUN_TEST(slice_a_2d_1_0_INT);
+    RUN_TEST(slice_a_2d_1_0_FLOAT);
+    RUN_TEST(slice_a_2d_1_0_COMPLEX);
+    RUN_TEST(slice_a_2d_0_1_DOUBLE);
+    RUN_TEST(slice_a_2d_0_1_INT);
+    RUN_TEST(slice_a_2d_0_1_FLOAT);
+    RUN_TEST(slice_a_2d_0_1_COMPLEX);
+    RUN_TEST(slice_a_3d_1_0_0_DOUBLE);
+    RUN_TEST(slice_a_3d_1_0_0_INT);
+    RUN_TEST(slice_a_3d_1_0_0_FLOAT);
+    RUN_TEST(slice_a_3d_1_0_0_COMPLEX);
+    RUN_TEST(slice_a_3d_0_1_0_DOUBLE);
+    RUN_TEST(slice_a_3d_0_1_0_INT);
+    RUN_TEST(slice_a_3d_0_1_0_FLOAT);
+    RUN_TEST(slice_a_3d_0_0_1_COMPLEX);
+    RUN_TEST(slice_a_3d_0_0_1_DOUBLE);
+    RUN_TEST(slice_a_3d_0_0_1_INT);
+    RUN_TEST(slice_a_3d_0_0_1_FLOAT);
+    RUN_TEST(slice_a_3d_0_0_1_COMPLEX);
+    RUN_TEST(slice_a_3d_1_1_0_DOUBLE);
+    RUN_TEST(slice_a_3d_1_1_0_INT);
+    RUN_TEST(slice_a_3d_1_1_0_FLOAT);
+    RUN_TEST(slice_a_3d_1_1_0_COMPLEX);
+    RUN_TEST(slice_a_3d_1_0_1_DOUBLE);
+    RUN_TEST(slice_a_3d_1_0_1_INT);
+    RUN_TEST(slice_a_3d_1_0_1_FLOAT);
+    RUN_TEST(slice_a_3d_1_0_1_COMPLEX);
+    RUN_TEST(slice_a_3d_0_1_1_DOUBLE);
+    RUN_TEST(slice_a_3d_0_1_1_INT);
+    RUN_TEST(slice_a_3d_0_1_1_FLOAT);
+    RUN_TEST(slice_a_3d_0_1_1_COMPLEX);
+    RUN_TEST(test_conjugate_a);
+    RUN_TEST(test_fill_diagonal_a_2d_double);
+    RUN_TEST(test_fill_diagonal_a_2d_int);
+    RUN_TEST(test_fill_diagonal_a_2d_float);
+    RUN_TEST(test_fill_diagonal_a_2d_complex);
+    RUN_TEST(test_mean_a_double);
+    RUN_TEST(test_mean_a_int);
+    RUN_TEST(test_mean_a_float);
+    RUN_TEST(test_mean_a_complex);
+    RUN_TEST(test_outer_a_double);
+    RUN_TEST(test_outer_a_int);
+    RUN_TEST(test_outer_a_float);
+    RUN_TEST(test_outer_a_complex);
+    RUN_TEST(test_harmard_element_wise_inverse_a);
+    RUN_TEST(test_diag_harmard_element_wise_inverse_a);
+    RUN_TEST(test_transpose_a_double_1);
+    RUN_TEST(test_transpose_a_double_2);
+    RUN_TEST(test_transpose_a_double_3);
+    RUN_TEST(test_transpose_a_int_1);
+    RUN_TEST(test_transpose_a_int_2);
+    RUN_TEST(test_transpose_a_int_3);
+    RUN_TEST(test_transpose_a_float_1);
+    RUN_TEST(test_transpose_a_float_2);
+    RUN_TEST(test_transpose_a_float_3);
+    RUN_TEST(test_transpose_a_complex_1);
+    RUN_TEST(test_transpose_a_complex_2);
+    RUN_TEST(test_transpose_a_complex_3);
+    RUN_TEST(test_save_to_file_a_double);
+    RUN_TEST(test_save_to_file_a_int);
+    RUN_TEST(test_save_to_file_a_float);
+    RUN_TEST(test_save_to_file_a_complex);
+    RUN_TEST(test_read_from_file_a_double);
+    RUN_TEST(test_read_from_file_a_int);
+    RUN_TEST(test_read_from_file_a_float);
+    RUN_TEST(test_read_from_file_a_complex);
+    RUN_TEST(test_std_a_double);
+    RUN_TEST(test_std_a_int);
+    RUN_TEST(test_std_a_float);
+    RUN_TEST(test_std_a_complex);
+    RUN_TEST(test_equal_a_double);
+    RUN_TEST(test_equal_a_int);
+    RUN_TEST(test_equal_a_float);
+    RUN_TEST(test_equal_a_complex);
+    RUN_TEST(test_reciprocal_a_double);
+    RUN_TEST(test_reciprocal_a_float);
+    RUN_TEST(test_reciprocal_a_int);
+    RUN_TEST(test_diag_reciprocal_a_double);
+    RUN_TEST(test_diag_reciprocal_a_float);
+    RUN_TEST(test_diag_reciprocal_a_int);
+    RUN_TEST(test_real_a);
+    RUN_TEST(test_imag_a);
+    RUN_TEST(test_contains_double_true);
+    RUN_TEST(test_contains_double_false);
+    RUN_TEST(test_contains_int_true);
+    RUN_TEST(test_contains_int_false);
+    RUN_TEST(test_contains_float_true);
+    RUN_TEST(test_contains_float_false);
+    RUN_TEST(test_contains_complex_true);
+    RUN_TEST(test_contains_complex_false);
+    RUN_TEST(test_index_of_element_double_true);
+    RUN_TEST(test_index_of_element_double_false);
+    RUN_TEST(test_index_of_element_int_true);
+    RUN_TEST(test_index_of_element_int_false);
+    RUN_TEST(test_index_of_element_float_true);
+    RUN_TEST(test_index_of_element_float_false);
+    RUN_TEST(test_index_of_element_complex_true);
+    RUN_TEST(test_index_of_element_complex_false);
+    RUN_TEST(test_norm_a_double);
+    RUN_TEST(test_norm_a_int);
+    RUN_TEST(test_norm_a_float);
+    RUN_TEST(test_norm_a_complex);
+    RUN_TEST(test_svd_a_complex);
+    RUN_TEST(test_pinv_a_complex);
+    RUN_TEST(test_abs_a_double);
+    RUN_TEST(test_abs_a_int);
+    RUN_TEST(test_abs_a_float);
+    RUN_TEST(test_abs_a_complex);
+    RUN_TEST(test_power_a_double);
+    RUN_TEST(test_power_a_int);
+    RUN_TEST(test_power_a_float);
+    RUN_TEST(test_power_a_complex);
+    RUN_TEST(test_sqrt_a_double);
+    RUN_TEST(test_sqrt_a_int);
+    RUN_TEST(test_sqrt_a_float);
+    RUN_TEST(test_sqrt_a_complex);
+    return UNITY_END();
+}
+

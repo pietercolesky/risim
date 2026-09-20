@@ -1,8 +1,6 @@
 #include "unity.h"
 #include "stopwatch.h"
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 void test_new_sw() {
     struct Stopwatch* stopwatch = new_sw();
@@ -22,9 +20,9 @@ void test_elapsed_sw() {
 } 
 
 // Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-//     RUN_TEST(test_new_sw);
-//     RUN_TEST(test_elapsed_sw);
-//     return UNITY_END();
-// }   
+int run_stopwatch_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_new_sw);
+    RUN_TEST(test_elapsed_sw);
+    return UNITY_END();
+}   

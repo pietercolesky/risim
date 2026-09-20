@@ -18,11 +18,12 @@
 struct DataCollector {
     struct Calibrator* calibrator;
     struct array* iterations;
-    struct Jaggedarray* gains;
-    struct Jaggedarray* all_gains;
-    struct Jaggedarray* damping_g;
-    struct Jaggedarray* damping_g_old;
-    struct Jaggedarray* last_residual;
+    struct JaggedArray* gains;
+    struct JaggedArray* all_gains;
+    struct JaggedArray* damping_g;
+    struct JaggedArray* damping_g_old;
+    struct JaggedArray* last_residual;
+    struct JaggedArray* b_values;
     pthread_mutex_t* mutex;
 };
 
@@ -72,38 +73,48 @@ void add_gain_dc(struct DataCollector* datacollector, size_t* time_step, struct 
 /**
  * get last gains array
 */
-struct Jaggedarray* get_last_gains_dc(struct DataCollector* datacollector);
+struct JaggedArray* get_last_gains_dc(struct DataCollector* datacollector);
 
 /**
- * Add all gains captured for a specific timestep in all_gains array
+ * Add all gains captured for a specific timestep in all_gains Array
 */
 void add_all_gain_dc(struct DataCollector* datacollector, size_t* index, size_t* iteration, struct array* array);
 
 /**
  * Get all gains for all time steps
 */
-struct Jaggedarray* get_all_gain_dc(struct DataCollector* datacollector);
+struct JaggedArray* get_all_gain_dc(struct DataCollector* datacollector);
 
 /**
- * Adds array of i damping factors to daming_g array at timestep t
+ * Adds Array of i damping factors to daming_g Array at timestep t
  */
 void add_damping_g_dc(struct DataCollector* datacollector, size_t* index, struct array* array);
 
 /**
  * Get damping g
  */
-struct Jaggedarray* get_damping_g_dc(struct DataCollector* datacollector);
+struct JaggedArray* get_damping_g_dc(struct DataCollector* datacollector);
 
 
 /**
- * Adds array of i damping factors to daming_g_old array at timestep t
+ * Adds Array of i damping factors to daming_g_old Array at timestep t
  */
 void add_damping_g_old_dc(struct DataCollector* datacollector, size_t* index, struct array* array);
 
 /**
  * Get damping g old
  */
-struct Jaggedarray* get_damping_g_old_dc(struct DataCollector* datacollector);
+struct JaggedArray* get_damping_g_old_dc(struct DataCollector* datacollector);
+
+/**
+ * Adds the array of per-iteration b (subsample size) values to b_values at timestep t
+ */
+void add_b_values_dc(struct DataCollector* datacollector, size_t* index, struct array* array);
+
+/**
+ * Get b values (one row of per-iteration subsample sizes per timestep)
+ */
+struct JaggedArray* get_b_values_dc(struct DataCollector* datacollector);
 
 /**
  * Get average iterations
@@ -155,7 +166,7 @@ void add_last_residual_dc(struct DataCollector* datacollector, size_t* time_step
 /**
  * Get last residual array
 */
-struct Jaggedarray* get_last_residual_dc(struct DataCollector* datacollector);
+struct JaggedArray* get_last_residual_dc(struct DataCollector* datacollector);
 
 /**
  * Get average of the last residuals

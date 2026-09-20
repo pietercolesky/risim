@@ -7,8 +7,6 @@
 #endif
 #define SPEED_OF_LIGHT 299792458.0
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 void test_new_dd() {
     create_directory("./test");
@@ -248,18 +246,18 @@ void test_add_item_update() {
 
 
 //Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-//     RUN_TEST(test_new_dd);
-//     RUN_TEST(test_print_dd);
-//     RUN_TEST(test_add_item_dd);
-//     RUN_TEST(test_increase_items);
-//     RUN_TEST(test_save_to_file_dd);
-//     RUN_TEST(test_read_from_file_dd);
-//     RUN_TEST(test_contains_item_dd);
-//     RUN_TEST(test_update_file_dd);
-//     RUN_TEST(test_read_and_add_dd);
-//     RUN_TEST(test_setup_data_dictionary);
-//     RUN_TEST(test_add_item_update);
-//     return UNITY_END();
-// }   
+int run_data_dictionary_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_new_dd);
+    RUN_TEST(test_print_dd);
+    RUN_TEST(test_add_item_dd);
+    RUN_TEST(test_increase_items);
+    RUN_TEST(test_save_to_file_dd);
+    RUN_TEST(test_read_from_file_dd);
+    RUN_TEST(test_contains_item_dd);
+    RUN_TEST(test_update_file_dd);
+    RUN_TEST(test_read_and_add_dd);
+    RUN_TEST(test_setup_data_dictionary);
+    RUN_TEST(test_add_item_update);
+    return UNITY_END();
+}   

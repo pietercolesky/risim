@@ -96,6 +96,32 @@ struct PSO* new_pso(enum AlgorithmType* option, size_t* num_dimensions, struct a
     pso->num_workers = malloc(sizeof(int));
     *pso->num_workers = *num_workers;
 
+    pso->fixed_alpha = NULL;
+    pso->alpha_directory = NULL;
+    pso->fixed_b = NULL;
+    pso->b_directory = NULL;
+
+    return pso;
+}
+
+struct PSO* new_pso_fixed_alpha(enum AlgorithmType* option, size_t* num_dimensions, struct array* position_bounds, size_t* iterations_max, size_t* num_particles, int* seed, char* simulators_directory, int* order, size_t* k, char* dd_name, char* dd_directory, int* num_workers, double* fixed_alpha) {
+    struct PSO* pso = new_pso(option, num_dimensions, position_bounds, iterations_max, num_particles, seed, simulators_directory, order, k, dd_name, dd_directory, num_workers);
+    if (fixed_alpha != NULL) {
+      pso->fixed_alpha = malloc(sizeof(double));
+      *pso->fixed_alpha = *fixed_alpha;
+    }
+    return pso;
+}
+
+/* Like new_pso, but for STEFCAL_STOCHASTIC_FIXED_B: carries the fixed initial batch b0 (stored as a
+ * double, rounded at use). fixed_b may be NULL and loaded per-experiment from b_directory inside the
+ * PSO loop (mirrors new_pso_fixed_alpha). */
+struct PSO* new_pso_fixed_b(enum AlgorithmType* option, size_t* num_dimensions, struct array* position_bounds, size_t* iterations_max, size_t* num_particles, int* seed, char* simulators_directory, int* order, size_t* k, char* dd_name, char* dd_directory, int* num_workers, double* fixed_b) {
+    struct PSO* pso = new_pso(option, num_dimensions, position_bounds, iterations_max, num_particles, seed, simulators_directory, order, k, dd_name, dd_directory, num_workers);
+    if (fixed_b != NULL) {
+      pso->fixed_b = malloc(sizeof(double));
+      *pso->fixed_b = *fixed_b;
+    }
     return pso;
 }
 
@@ -178,6 +204,18 @@ void free_pso(struct PSO* pso) {
     if (pso->num_workers != NULL) {
       free(pso->num_workers);
     }
+    if (pso->fixed_alpha != NULL) {
+      free(pso->fixed_alpha);
+    }
+    if (pso->alpha_directory != NULL) {
+      free(pso->alpha_directory);
+    }
+    if (pso->fixed_b != NULL) {
+      free(pso->fixed_b);
+    }
+    if (pso->b_directory != NULL) {
+      free(pso->b_directory);
+    }
 
     free(pso);
 }
@@ -208,7 +246,7 @@ void start_pso(struct PSO* pso) {
         break;
       case LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2_REDUCED_TIMESTEPS:
         printf("LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2_REDUCED_TIMESTEPS\n");
-        break;  
+        break;
       case LEVENBERG_MARQUARDT:
         printf("LEVENBERG_MARQUARDT\n");
         break;
@@ -217,6 +255,18 @@ void start_pso(struct PSO* pso) {
         break;
       case ADAM:
         printf("ADAM\n");
+        break;
+      case ADAM_FIXED_ALPHA:
+        printf("ADAM_FIXED_ALPHA\n");
+        break;
+      case STEFCAL_STOCHASTIC_ADAPTIVE:
+        printf("STEFCAL_STOCHASTIC_ADAPTIVE\n");
+        break;
+      case STEFCAL_STOCHASTIC_L1L2:
+        printf("STEFCAL_STOCHASTIC_L1L2\n");
+        break;
+      case STEFCAL_STOCHASTIC_FIXED_B:
+        printf("STEFCAL_STOCHASTIC_FIXED_B\n");
         break;
       default:
         log_invalid_algorithm_type(__FILE__, __LINE__);
@@ -234,11 +284,24 @@ void start_pso(struct PSO* pso) {
 
     struct PSOProgress* pso_progress = new_pp(&(size_t){50}, &(size_t){64}, pso->iterations_max, pso->num_particles);
 
-    //Iterate through all the snrs, max_amps and seeds 
+    //Iterate through all the snrs, max_amps and seeds
     for (size_t j = 0; j < 4; j++) {
           for (size_t h = 0; h < 4; h++) {
               for (size_t l = 0; l < 4; l++) {
                   if (count >= dd_count) {
+                    if (*pso->option == ADAM_FIXED_ALPHA) {
+                      const char* alpha_prefix = pso->alpha_directory != NULL ? pso->alpha_directory : ".";
+                      char alpha_path[512];
+                      sprintf(alpha_path, "%s/data_optimal_solutions/adam_best_alpha/data_order_%d/seed_%d_snr_%.0lf_maxamp_%.0lf.array",
+                              alpha_prefix, *pso->order, seeds[j], snrs[h], max_amps[l]);
+                      struct array* alpha_array = read_from_file_a(alpha_path);
+                      double alpha_value = *(double*)get_element_a(alpha_array, (size_t[]){0});
+                      if (pso->fixed_alpha == NULL) {
+                        pso->fixed_alpha = malloc(sizeof(double));
+                      }
+                      *pso->fixed_alpha = alpha_value;
+                      free_a(alpha_array);
+                    }
                     //Create array of particles
                     struct Particle** particles = malloc(*pso->num_particles * sizeof(struct Particle*));
                     //initialise particle positions and velocities
@@ -284,6 +347,96 @@ void start_pso(struct PSO* pso) {
                         //check the option of the algorithm
                         switch (*pso->option)
                         {
+                        case STEFCAL_LAMBDA:
+                          solve_G_StEFCal_Lambda(
+                            calibrator, 
+                            &(size_t){IMAX}, 
+                            &(double){TAU}, 
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                          );
+                          //set current values
+                          average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                          std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                          
+                          last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                          *particles[p]->current_iterations_mean = *average_iterations;
+                          *particles[p]->current_iterations_std = *std_iterations;
+                          *particles[p]->current_residual_norm = *last_residual_norm;
+
+                          free(last_residual_norm);
+                          free(std_iterations);
+                          free(average_iterations);
+
+                          break;
+                        case STEFCAL_IMPROVED:
+                          solve_G_StEFCal_improved(
+                            calibrator, 
+                            &(size_t){IMAX}, 
+                            &(double){TAU}, 
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                          );
+                          //set current values
+                          average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                          std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                          
+                          last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                          *particles[p]->current_iterations_mean = *average_iterations;
+                          *particles[p]->current_iterations_std = *std_iterations;
+                          *particles[p]->current_residual_norm = *last_residual_norm;
+
+                          free(last_residual_norm);
+                          free(std_iterations);
+                          free(average_iterations);
+
+                          break;
+                        case LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2:
+                          solve_G_LM_Non_Adaptive_l1_l2(
+                            calibrator, 
+                            &(size_t){IMAX}, 
+                            &(double){TAU}, 
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                          );
+                          //set current values
+                          
+                          average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                          std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                          last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+    
+                          *particles[p]->current_iterations_mean = *average_iterations;
+                          *particles[p]->current_iterations_std = *std_iterations; 
+                          *particles[p]->current_residual_norm = *last_residual_norm;
+    
+                          free(last_residual_norm);
+                          free(std_iterations);
+                          free(average_iterations);
+                          break;
+                        case LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2_REDUCED_TIMESTEPS:
+                          solve_G_LM_Non_Adaptive_l1_l2_REDUCED_TIMESTEPS(
+                            calibrator, 
+                            &(size_t){IMAX}, 
+                            &(double){TAU}, 
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                          );
+                          //set current values
+                          
+                          average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                          std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                          last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+    
+                          *particles[p]->current_iterations_mean = *average_iterations;
+                          *particles[p]->current_iterations_std = *std_iterations; 
+                          *particles[p]->current_residual_norm = *last_residual_norm;
+    
+                          free(last_residual_norm);
+                          free(std_iterations);
+                          free(average_iterations);
+                          break;  
                         case LEVENBERG_MARQUARDT:
                           solve_G_LM(
                             calibrator, 
@@ -303,6 +456,94 @@ void start_pso(struct PSO* pso) {
                           free(std_iterations);
                           free(average_iterations);
                           break;
+                        case ADAM:
+                          solve_G_ADAM(
+                            calibrator,
+                            &(size_t){IMAX},
+                            &(double){TAU},
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})},
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})},
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){2})}
+                          );
+                          //set current values
+                          average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                          std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+
+                          last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                          *particles[p]->current_iterations_mean = *average_iterations;
+                          *particles[p]->current_iterations_std = *std_iterations;
+                          *particles[p]->current_residual_norm = *last_residual_norm;
+
+                          free(last_residual_norm);
+                          free(std_iterations);
+                          free(average_iterations);
+
+                          break;
+                        case LEVENBERG_MARQUARDT_REDUCED_TIMESTEPS:
+                          solve_G_LM_REDUCED_TIMESTEPS(
+                            calibrator,
+                            &(size_t){IMAX},
+                            &(double){TAU},
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})},
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                          );
+                          average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                          std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                          last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                          *particles[p]->current_iterations_mean = *average_iterations;
+                          *particles[p]->current_iterations_std = *std_iterations;
+                          *particles[p]->current_residual_norm = *last_residual_norm;
+
+                          free(last_residual_norm);
+                          free(std_iterations);
+                          free(average_iterations);
+                          break;
+                        case ADAM_FIXED_ALPHA:
+                          solve_G_ADAM(
+                            calibrator,
+                            &(size_t){IMAX},
+                            &(double){TAU},
+                            pso->fixed_alpha,
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})},
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                          );
+                          average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                          std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                          last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                          *particles[p]->current_iterations_mean = *average_iterations;
+                          *particles[p]->current_iterations_std = *std_iterations;
+                          *particles[p]->current_residual_norm = *last_residual_norm;
+
+                          free(last_residual_norm);
+                          free(std_iterations);
+                          free(average_iterations);
+                          break;
+                        case STEFCAL_STOCHASTIC_ADAPTIVE: {
+                          size_t b0 = (size_t)round(*(double*)get_element_a(particles[p]->positions, (size_t[]){1}));
+                          if (b0 < 2) b0 = 2;
+                          if (b0 > *calibrator->N - 1) b0 = *calibrator->N - 1;
+                          solve_G_StEFCal_stochastic_adaptive(
+                            calibrator,
+                            &(size_t){IMAX},
+                            &(double){TAU},
+                            &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})},
+                            &b0,
+                            &(int){1}
+                          );
+                          average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                          std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                          last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+                          *particles[p]->current_iterations_mean = *average_iterations;
+                          *particles[p]->current_iterations_std = *std_iterations;
+                          *particles[p]->current_residual_norm = *last_residual_norm;
+                          free(last_residual_norm);
+                          free(std_iterations);
+                          free(average_iterations);
+                          break;
+                        }
                         default:
                           log_invalid_algorithm_type(__FILE__, __LINE__);
                           break;
@@ -320,10 +561,10 @@ void start_pso(struct PSO* pso) {
 
                       //update global best
                       for (size_t p = 0; p < *pso->num_particles; p++) {
-                        if (*particles[p]->current_residual_norm != -NAN && 
-                            *particles[p]->current_residual_norm != INFINITY && 
+                        if (*particles[p]->current_residual_norm != -NAN &&
+                            *particles[p]->current_residual_norm != INFINITY &&
                             *particles[p]->current_residual_norm != NAN &&
-                            *particles[p]->current_residual_norm != -INFINITY ) 
+                            *particles[p]->current_residual_norm != -INFINITY )
                         {
                           if (*particles[p]->pb_iterations_mean < *pso->global_best_iteration_mean) {
                             *pso->global_best_iteration_mean = *particles[p]->pb_iterations_mean;
@@ -449,7 +690,7 @@ void start_single_pso_local(struct PSO* pso) {
         break;
       case LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2_REDUCED_TIMESTEPS:
         printf("LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2_REDUCED_TIMESTEPS\n");
-        break;  
+        break;
       case LEVENBERG_MARQUARDT:
         printf("LEVENBERG_MARQUARDT\n");
         break;
@@ -458,6 +699,18 @@ void start_single_pso_local(struct PSO* pso) {
         break;
       case ADAM:
         printf("ADAM\n");
+        break;
+      case ADAM_FIXED_ALPHA:
+        printf("ADAM_FIXED_ALPHA\n");
+        break;
+      case STEFCAL_STOCHASTIC_ADAPTIVE:
+        printf("STEFCAL_STOCHASTIC_ADAPTIVE\n");
+        break;
+      case STEFCAL_STOCHASTIC_L1L2:
+        printf("STEFCAL_STOCHASTIC_L1L2\n");
+        break;
+      case STEFCAL_STOCHASTIC_FIXED_B:
+        printf("STEFCAL_STOCHASTIC_FIXED_B\n");
         break;
       default:
         log_invalid_algorithm_type(__FILE__, __LINE__);
@@ -474,11 +727,37 @@ void start_single_pso_local(struct PSO* pso) {
     size_t count = 0;
 
     struct PSOProgress* pso_progress = new_pp(&(size_t){50}, &(size_t){64}, pso->iterations_max, pso->num_particles);
-    
+
     for (size_t j = 0; j < 4; j++) {
       for (size_t h = 0; h < 4; h++) {
         for (size_t l = 0; l < 4; l++) {
             if (count >= dd_count) {
+              if (*pso->option == ADAM_FIXED_ALPHA) {
+                const char* alpha_prefix = pso->alpha_directory != NULL ? pso->alpha_directory : ".";
+                char alpha_path[512];
+                sprintf(alpha_path, "%s/data_optimal_solutions/adam_best_alpha/data_order_%d/seed_%d_snr_%.0lf_maxamp_%.0lf.array",
+                        alpha_prefix, *pso->order, seeds[j], snrs[h], max_amps[l]);
+                struct array* alpha_array = read_from_file_a(alpha_path);
+                double alpha_value = *(double*)get_element_a(alpha_array, (size_t[]){0});
+                if (pso->fixed_alpha == NULL) {
+                  pso->fixed_alpha = malloc(sizeof(double));
+                }
+                *pso->fixed_alpha = alpha_value;
+                free_a(alpha_array);
+              }
+              if (*pso->option == STEFCAL_STOCHASTIC_FIXED_B) {
+                const char* b_prefix = pso->b_directory != NULL ? pso->b_directory : ".";
+                char b_path[512];
+                sprintf(b_path, "%s/data_optimal_solutions/stochastic_best_b/data_order_%d/seed_%d_snr_%.0lf_maxamp_%.0lf.array",
+                        b_prefix, *pso->order, seeds[j], snrs[h], max_amps[l]);
+                struct array* b_array = read_from_file_a(b_path);
+                double b_value = *(double*)get_element_a(b_array, (size_t[]){0});
+                if (pso->fixed_b == NULL) {
+                  pso->fixed_b = malloc(sizeof(double));
+                }
+                *pso->fixed_b = b_value;
+                free_a(b_array);
+              }
               //Create array of particles
               struct Particle** particles = malloc(*pso->num_particles * sizeof(struct Particle*));
               //initialise particle positions and velocities
@@ -521,6 +800,94 @@ void start_single_pso_local(struct PSO* pso) {
                   double* last_residual_norm = &(double){0};
                   switch (*pso->option)
                   {
+                    case STEFCAL_LAMBDA:
+                      solve_G_StEFCal_Lambda(
+                        calibrator, 
+                        &(size_t){IMAX}, 
+                        &(double){TAU}, 
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                      );
+                      //set current values
+                      average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                      std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                      last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                      *particles[p]->current_iterations_mean = *average_iterations;
+                      *particles[p]->current_iterations_std = *std_iterations;
+                      *particles[p]->current_residual_norm = *last_residual_norm;
+
+                      free(last_residual_norm);
+                      free(std_iterations);
+                      free(average_iterations);
+
+                      break;
+                    case STEFCAL_IMPROVED:
+                      solve_G_StEFCal_improved(
+                        calibrator, 
+                        &(size_t){IMAX}, 
+                        &(double){TAU}, 
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                      );
+                      //set current values
+                      average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                      std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                      last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                      *particles[p]->current_iterations_mean = *average_iterations;
+                      *particles[p]->current_iterations_std = *std_iterations;
+                      *particles[p]->current_residual_norm = *last_residual_norm;
+
+                      free(last_residual_norm);
+                      free(std_iterations);
+                      free(average_iterations);
+
+                      break;
+                    case LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2:
+                      solve_G_LM_Non_Adaptive_l1_l2(
+                        calibrator, 
+                        &(size_t){IMAX}, 
+                        &(double){TAU}, 
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                      );
+                      //set current values
+                      
+                      average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                      std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                      last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                      *particles[p]->current_iterations_mean = *average_iterations;
+                      *particles[p]->current_iterations_std = *std_iterations; 
+                      *particles[p]->current_residual_norm = *last_residual_norm;
+
+                      free(last_residual_norm);
+                      free(std_iterations);
+                      free(average_iterations);
+                      break;
+                    case LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2_REDUCED_TIMESTEPS:
+                      solve_G_LM_Non_Adaptive_l1_l2_REDUCED_TIMESTEPS(
+                        calibrator, 
+                        &(size_t){IMAX}, 
+                        &(double){TAU}, 
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                      );
+                      //set current values
+                      
+                      average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                      std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                      last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                      *particles[p]->current_iterations_mean = *average_iterations;
+                      *particles[p]->current_iterations_std = *std_iterations; 
+                      *particles[p]->current_residual_norm = *last_residual_norm;
+
+                      free(last_residual_norm);
+                      free(std_iterations);
+                      free(average_iterations);
+                      break;  
                     case LEVENBERG_MARQUARDT:
                       solve_G_LM(
                         calibrator, 
@@ -562,6 +929,110 @@ void start_single_pso_local(struct PSO* pso) {
                       free(std_iterations);
                       free(average_iterations);
                       break;
+                    case ADAM:
+                      solve_G_ADAM(
+                        calibrator,
+                        &(size_t){IMAX},
+                        &(double){TAU},
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})},
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})},
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){2})}
+                      );
+                      //set current values
+                      average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                      std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+
+                      last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                    *particles[p]->current_iterations_mean = *average_iterations;
+                    *particles[p]->current_iterations_std = *std_iterations;
+                    *particles[p]->current_residual_norm = *last_residual_norm;
+
+                    free(last_residual_norm);
+                    free(std_iterations);
+                    free(average_iterations);
+
+                    break;
+                    case ADAM_FIXED_ALPHA:
+                      solve_G_ADAM(
+                        calibrator,
+                        &(size_t){IMAX},
+                        &(double){TAU},
+                        pso->fixed_alpha,
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})},
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                      );
+                      average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                      std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                      last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                      *particles[p]->current_iterations_mean = *average_iterations;
+                      *particles[p]->current_iterations_std = *std_iterations;
+                      *particles[p]->current_residual_norm = *last_residual_norm;
+
+                      free(last_residual_norm);
+                      free(std_iterations);
+                      free(average_iterations);
+                      break;
+                  case STEFCAL_STOCHASTIC_ADAPTIVE: {
+                      size_t b0 = (size_t)round(*(double*)get_element_a(particles[p]->positions, (size_t[]){1}));
+                      if (b0 < 2) b0 = 2;
+                      if (b0 > *calibrator->N - 1) b0 = *calibrator->N - 1;
+                      solve_G_StEFCal_stochastic_adaptive(
+                        calibrator,
+                        &(size_t){IMAX},
+                        &(double){TAU},
+                        &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})},
+                        &b0,
+                        &(int){1}
+                      );
+                      average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                      std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                      last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+                      *particles[p]->current_iterations_mean = *average_iterations;
+                      *particles[p]->current_iterations_std = *std_iterations;
+                      *particles[p]->current_residual_norm = *last_residual_norm;
+                      free(last_residual_norm);
+                      free(std_iterations);
+                      free(average_iterations);
+                      break;
+                  }
+                  case STEFCAL_STOCHASTIC_L1L2: {
+                      double l1v = *(double*)get_element_a(particles[p]->positions, (size_t[]){0});
+                      double l2v = *(double*)get_element_a(particles[p]->positions, (size_t[]){1});
+                      size_t b0 = (size_t)round(*(double*)get_element_a(particles[p]->positions, (size_t[]){2}));
+                      if (b0 < 2) b0 = 2;
+                      if (b0 > *calibrator->N - 1) b0 = *calibrator->N - 1;
+                      solve_G_StEFCal_stochastic_adaptive_l1l2(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1v, &l2v, &b0, &(int){1});
+                      average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                      std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                      last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+                      *particles[p]->current_iterations_mean = *average_iterations;
+                      *particles[p]->current_iterations_std = *std_iterations;
+                      *particles[p]->current_residual_norm = *last_residual_norm;
+                      free(last_residual_norm);
+                      free(std_iterations);
+                      free(average_iterations);
+                      break;
+                  }
+                  case STEFCAL_STOCHASTIC_FIXED_B: {
+                      double l1v = *(double*)get_element_a(particles[p]->positions, (size_t[]){0});
+                      double l2v = *(double*)get_element_a(particles[p]->positions, (size_t[]){1});
+                      size_t b0 = (pso->fixed_b != NULL) ? (size_t)round(*pso->fixed_b) : 2;
+                      if (b0 < 2) b0 = 2;
+                      if (b0 > *calibrator->N - 1) b0 = *calibrator->N - 1;
+                      solve_G_StEFCal_stochastic_adaptive_l1l2(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1v, &l2v, &b0, &(int){1});
+                      average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                      std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                      last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+                      *particles[p]->current_iterations_mean = *average_iterations;
+                      *particles[p]->current_iterations_std = *std_iterations;
+                      *particles[p]->current_residual_norm = *last_residual_norm;
+                      free(last_residual_norm);
+                      free(std_iterations);
+                      free(average_iterations);
+                      break;
+                  }
                   default:
                     log_invalid_algorithm_type(__FILE__, __LINE__);
                     break;
@@ -703,7 +1174,7 @@ int start_single_pso(struct PSO* pso) {
         break;
       case LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2_REDUCED_TIMESTEPS:
         printf("LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2_REDUCED_TIMESTEPS\n");
-        break;  
+        break;
       case LEVENBERG_MARQUARDT:
         printf("LEVENBERG_MARQUARDT\n");
         break;
@@ -712,6 +1183,18 @@ int start_single_pso(struct PSO* pso) {
         break;
       case ADAM:
         printf("ADAM\n");
+        break;
+      case ADAM_FIXED_ALPHA:
+        printf("ADAM_FIXED_ALPHA\n");
+        break;
+      case STEFCAL_STOCHASTIC_ADAPTIVE:
+        printf("STEFCAL_STOCHASTIC_ADAPTIVE\n");
+        break;
+      case STEFCAL_STOCHASTIC_L1L2:
+        printf("STEFCAL_STOCHASTIC_L1L2\n");
+        break;
+      case STEFCAL_STOCHASTIC_FIXED_B:
+        printf("STEFCAL_STOCHASTIC_FIXED_B\n");
         break;
       default:
         log_invalid_algorithm_type(__FILE__, __LINE__);
@@ -728,12 +1211,38 @@ int start_single_pso(struct PSO* pso) {
     size_t count = 0;
 
     struct PSOProgress* pso_progress = new_pp(&(size_t){50}, &(size_t){64}, pso->iterations_max, pso->num_particles);
-  
-    //Iterate through all the snrs, max_amps and seeds 
+
+    //Iterate through all the snrs, max_amps and seeds
     for (size_t j = 0; j < 4; j++) {
       for (size_t h = 0; h < 4; h++) {
         for (size_t l = 0; l < 4; l++) {
             if (count >= dd_count) {
+              if (*pso->option == ADAM_FIXED_ALPHA) {
+                const char* alpha_prefix = pso->alpha_directory != NULL ? pso->alpha_directory : ".";
+                char alpha_path[512];
+                sprintf(alpha_path, "%s/data_optimal_solutions/adam_best_alpha/data_order_%d/seed_%d_snr_%.0lf_maxamp_%.0lf.array",
+                        alpha_prefix, *pso->order, seeds[j], snrs[h], max_amps[l]);
+                struct array* alpha_array = read_from_file_a(alpha_path);
+                double alpha_value = *(double*)get_element_a(alpha_array, (size_t[]){0});
+                if (pso->fixed_alpha == NULL) {
+                  pso->fixed_alpha = malloc(sizeof(double));
+                }
+                *pso->fixed_alpha = alpha_value;
+                free_a(alpha_array);
+              }
+              if (*pso->option == STEFCAL_STOCHASTIC_FIXED_B) {
+                const char* b_prefix = pso->b_directory != NULL ? pso->b_directory : ".";
+                char b_path[512];
+                sprintf(b_path, "%s/data_optimal_solutions/stochastic_best_b/data_order_%d/seed_%d_snr_%.0lf_maxamp_%.0lf.array",
+                        b_prefix, *pso->order, seeds[j], snrs[h], max_amps[l]);
+                struct array* b_array = read_from_file_a(b_path);
+                double b_value = *(double*)get_element_a(b_array, (size_t[]){0});
+                if (pso->fixed_b == NULL) {
+                  pso->fixed_b = malloc(sizeof(double));
+                }
+                *pso->fixed_b = b_value;
+                free_a(b_array);
+              }
 
               //Create array of particles
               struct Particle** particles = malloc(*pso->num_particles * sizeof(struct Particle*));
@@ -783,6 +1292,95 @@ int start_single_pso(struct PSO* pso) {
                   double* last_residual_norm = &(double){0};
                   switch (*pso->option)
                   {
+                  case STEFCAL_LAMBDA:
+                    solve_G_StEFCal_Lambda(
+                      calibrator, 
+                      &(size_t){IMAX}, 
+                      &(double){TAU}, 
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                    );
+                    //set current values
+                    average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                    std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                    last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                    *particles[p]->current_iterations_mean = *average_iterations;
+                    *particles[p]->current_iterations_std = *std_iterations;
+                    *particles[p]->current_residual_norm = *last_residual_norm;
+
+                    free(last_residual_norm);
+                    free(std_iterations);
+                    free(average_iterations);
+
+                    break;
+                  case STEFCAL_IMPROVED:
+                    solve_G_StEFCal_improved(
+                      calibrator, 
+                      &(size_t){IMAX}, 
+                      &(double){TAU}, 
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                    );
+                    //set current values
+                    average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                    std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                    
+                    last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                    *particles[p]->current_iterations_mean = *average_iterations;
+                    *particles[p]->current_iterations_std = *std_iterations;
+                    *particles[p]->current_residual_norm = *last_residual_norm;
+
+                    free(last_residual_norm);
+                    free(std_iterations);
+                    free(average_iterations);
+
+                    break;
+                  case LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2:
+                    solve_G_LM_Non_Adaptive_l1_l2(
+                      calibrator, 
+                      &(size_t){IMAX}, 
+                      &(double){TAU}, 
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                    );
+                    //set current values
+                    
+                    average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                    std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                    last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                    *particles[p]->current_iterations_mean = *average_iterations;
+                    *particles[p]->current_iterations_std = *std_iterations; 
+                    *particles[p]->current_residual_norm = *last_residual_norm;
+
+                    free(last_residual_norm);
+                    free(std_iterations);
+                    free(average_iterations);
+                    break;
+                  case LEVENBERG_MARQUARDT_NON_ADAPTIVE_L1_L2_REDUCED_TIMESTEPS:
+                    solve_G_LM_Non_Adaptive_l1_l2_REDUCED_TIMESTEPS(
+                      calibrator, 
+                      &(size_t){IMAX}, 
+                      &(double){TAU}, 
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})}, 
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                    );
+                    //set current values
+                    
+                    average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                    std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                    last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                    *particles[p]->current_iterations_mean = *average_iterations;
+                    *particles[p]->current_iterations_std = *std_iterations; 
+                    *particles[p]->current_residual_norm = *last_residual_norm;
+
+                    free(last_residual_norm);
+                    free(std_iterations);
+                    free(average_iterations);
+                    break;
                   case LEVENBERG_MARQUARDT:
                     solve_G_LM(
                       calibrator, 
@@ -826,6 +1424,110 @@ int start_single_pso(struct PSO* pso) {
                     free(std_iterations);
                     free(average_iterations);
                     break;
+                  case ADAM:
+                    solve_G_ADAM_without_r(
+                      calibrator,
+                      &(size_t){IMAX},
+                      &(double){TAU},
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})},
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})},
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){2})}
+                    );
+                    //set current values
+                    average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                    std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+
+                    last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                    *particles[p]->current_iterations_mean = *average_iterations;
+                    *particles[p]->current_iterations_std = *std_iterations;
+                    *particles[p]->current_residual_norm = *last_residual_norm;
+
+                    free(last_residual_norm);
+                    free(std_iterations);
+                    free(average_iterations);
+
+                    break;
+                  case ADAM_FIXED_ALPHA:
+                    solve_G_ADAM_without_r(
+                      calibrator,
+                      &(size_t){IMAX},
+                      &(double){TAU},
+                      pso->fixed_alpha,
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})},
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){1})}
+                    );
+                    average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                    std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                    last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+
+                    *particles[p]->current_iterations_mean = *average_iterations;
+                    *particles[p]->current_iterations_std = *std_iterations;
+                    *particles[p]->current_residual_norm = *last_residual_norm;
+
+                    free(last_residual_norm);
+                    free(std_iterations);
+                    free(average_iterations);
+                    break;
+                  case STEFCAL_STOCHASTIC_ADAPTIVE: {
+                    size_t b0 = (size_t)round(*(double*)get_element_a(particles[p]->positions, (size_t[]){1}));
+                    if (b0 < 2) b0 = 2;
+                    if (b0 > *calibrator->N - 1) b0 = *calibrator->N - 1;
+                    solve_G_StEFCal_stochastic_adaptive(
+                      calibrator,
+                      &(size_t){IMAX},
+                      &(double){TAU},
+                      &(double){*(double*)get_element_a(particles[p]->positions, (size_t[]){0})},
+                      &b0,
+                      &(int){1}
+                    );
+                    average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                    std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                    last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+                    *particles[p]->current_iterations_mean = *average_iterations;
+                    *particles[p]->current_iterations_std = *std_iterations;
+                    *particles[p]->current_residual_norm = *last_residual_norm;
+                    free(last_residual_norm);
+                    free(std_iterations);
+                    free(average_iterations);
+                    break;
+                  }
+                  case STEFCAL_STOCHASTIC_L1L2: {
+                    double l1v = *(double*)get_element_a(particles[p]->positions, (size_t[]){0});
+                    double l2v = *(double*)get_element_a(particles[p]->positions, (size_t[]){1});
+                    size_t b0 = (size_t)round(*(double*)get_element_a(particles[p]->positions, (size_t[]){2}));
+                    if (b0 < 2) b0 = 2;
+                    if (b0 > *calibrator->N - 1) b0 = *calibrator->N - 1;
+                    solve_G_StEFCal_stochastic_adaptive_l1l2(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1v, &l2v, &b0, &(int){1});
+                    average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                    std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                    last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+                    *particles[p]->current_iterations_mean = *average_iterations;
+                    *particles[p]->current_iterations_std = *std_iterations;
+                    *particles[p]->current_residual_norm = *last_residual_norm;
+                    free(last_residual_norm);
+                    free(std_iterations);
+                    free(average_iterations);
+                    break;
+                  }
+                  case STEFCAL_STOCHASTIC_FIXED_B: {
+                    double l1v = *(double*)get_element_a(particles[p]->positions, (size_t[]){0});
+                    double l2v = *(double*)get_element_a(particles[p]->positions, (size_t[]){1});
+                    size_t b0 = (pso->fixed_b != NULL) ? (size_t)round(*pso->fixed_b) : 2;
+                    if (b0 < 2) b0 = 2;
+                    if (b0 > *calibrator->N - 1) b0 = *calibrator->N - 1;
+                    solve_G_StEFCal_stochastic_adaptive_l1l2(calibrator, &(size_t){IMAX}, &(double){TAU}, &l1v, &l2v, &b0, &(int){1});
+                    average_iterations = get_average_iterations_dc(calibrator->datacollector);
+                    std_iterations = get_standard_deviation_iterations_dc(calibrator->datacollector);
+                    last_residual_norm = get_last_residuals_norm_dc(calibrator->datacollector);
+                    *particles[p]->current_iterations_mean = *average_iterations;
+                    *particles[p]->current_iterations_std = *std_iterations;
+                    *particles[p]->current_residual_norm = *last_residual_norm;
+                    free(last_residual_norm);
+                    free(std_iterations);
+                    free(average_iterations);
+                    break;
+                  }
                   default:
                     log_invalid_algorithm_type(__FILE__, __LINE__);
                     break;

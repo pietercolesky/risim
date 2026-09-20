@@ -7,8 +7,6 @@
 #endif
 #define SPEED_OF_LIGHT 299792458.0
 
-void setUp(void) {}
-void tearDown(void) {}
 
 void test_new_c() {
     double h_min = -1;
@@ -301,16 +299,16 @@ void test_solve_G_LM_REDUCED_TIMESTEPS() {
 }
 
 //Main function to run the tests
-int main(void) {
+int run_calibrator_tests(void) {
     UNITY_BEGIN();
-    // RUN_TEST(test_new_c);
-    // RUN_TEST(test_solve_G_LM_Diag_Hessian_Lambda);
-    // RUN_TEST(test_solve_G_StEFCal);
-    // RUN_TEST(test_correct_visibilities);
-    // RUN_TEST(test_solve_G_LM_Diag_Hessian_Lambda_parallel);
-    // RUN_TEST(test_solve_G_StEFCal_parallel);
-    // RUN_TEST(test_solve_G_StEFCal_Lambda);
-    // RUN_TEST(test_solve_G_StEFCal_Lambda_parallel);
+    RUN_TEST(test_new_c);
+    RUN_TEST(test_solve_G_LM_Diag_Hessian_Lambda);
+    RUN_TEST(test_solve_G_StEFCal);
+    RUN_TEST(test_correct_visibilities);
+    RUN_TEST(test_solve_G_LM_Diag_Hessian_Lambda_parallel);
+    RUN_TEST(test_solve_G_StEFCal_parallel);
+    RUN_TEST(test_solve_G_StEFCal_Lambda);
+    RUN_TEST(test_solve_G_StEFCal_Lambda_parallel);
     RUN_TEST(test_solve_G_LM_REDUCED_TIMESTEPS);
     return UNITY_END();
 }   

@@ -4,8 +4,6 @@
 #include "utils.h"
 #include "pso.h"
 
-// void setUp(void) {}
-// void tearDown(void) {}
 
 void test_new_pso() {
     enum AlgorithmType option = STEFCAL_LAMBDA;
@@ -277,15 +275,18 @@ void test_start_pso_stefcal_improved() {
 
 
 // Main function to run the tests
-// int main(void) {
-//     UNITY_BEGIN();
-//     RUN_TEST(test_new_pso);
-//     RUN_TEST(test_generate_random_number_pso);
-//     RUN_TEST(test_random_position_pso);
-//     RUN_TEST(test_random_position_bound1_pso);
-//     RUN_TEST(test_random_position_bound2_pso);
-//     RUN_TEST(test_start_pso_stefcal_lambda);
-//     RUN_TEST(test_start_pso_stefcal_improved);
-//     RUN_TEST(test_start_single_pso);
-//     return UNITY_END();
-// }   
+int run_pso_tests(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_new_pso);
+    RUN_TEST(test_generate_random_number_pso);
+    RUN_TEST(test_random_position_pso);
+    RUN_TEST(test_random_position_bound1_pso);
+    RUN_TEST(test_random_position_bound2_pso);
+    /* Integration tests: these need datasets generated beforehand (see
+     * `risim simulate`) and run a full search, so they are not part of the
+     * default `make test` run. Enable them once the data is in place. */
+    // RUN_TEST(test_start_pso_stefcal_lambda);
+    // RUN_TEST(test_start_pso_stefcal_improved);
+    // RUN_TEST(test_start_single_pso);
+    return UNITY_END();
+}   
