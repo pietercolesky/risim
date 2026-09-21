@@ -47,6 +47,58 @@
 /** Data directory used when -d is not given. */
 #define DEFAULT_DIRECTORY "./simulation_environment"
 
+/**
+ * Scale overrides, set by -w, -g, -i and -p.
+ *
+ * Zero means "use the value this experiment was published with", so leaving
+ * them alone reproduces the paper exactly. They exist so that the pipeline can
+ * also be run at a size that finishes on a workstation: the published grid is
+ * 500x500 points over 64 datasets per antenna order, and the published worker
+ * counts assume an HPC node.
+ */
+static int override_workers = 0;
+static size_t override_grid_length = 0;
+static size_t override_pso_iterations = 0;
+static size_t override_pso_particles = 0;
+
+static int workers(int published) {
+    return override_workers > 0 ? override_workers : published;
+}
+
+static size_t grid_points(size_t published) {
+    return override_grid_length > 0 ? override_grid_length : published;
+}
+
+static size_t pso_iterations(size_t published) {
+    return override_pso_iterations > 0 ? override_pso_iterations : published;
+}
+
+static size_t pso_particles(size_t published) {
+    return override_pso_particles > 0 ? override_pso_particles : published;
+}
+
+
+/**
+ * Open a file for writing, creating the directory it lives in first.
+ *
+ * The extraction stage writes into directories that only come into existence
+ * once an earlier stage has run, so each output file makes sure of its own
+ * parent rather than relying on the run order.
+ */
+static FILE* open_output(const char* path, const char* mode) {
+    const char* slash = strrchr(path, '/');
+    if (slash != NULL) {
+        size_t len = (size_t)(slash - path);
+        char parent[1024];
+        if (len > 0 && len < sizeof(parent)) {
+            memcpy(parent, path, len);
+            parent[len] = '\0';
+            create_directories(parent);
+        }
+    }
+    return fopen(path, mode);
+}
+
 int main(int argc, char* argv[]);
 
 void mapping_local(int* order, char* directory, char* filename, enum AlgorithmType* algorithm);
@@ -62,8 +114,8 @@ void mapping_pso_stochastic_l1l2_local(char* directory, int* order_min, int* ord
 void mapping_pso_stochastic_fixed_b_local(char* directory, int* order_min, int* order_max);
 void extraction_optimal_stefcal(char* directory, size_t* order_min, size_t* order_max);
 void extraction_0_1_stefcal(char* directory, size_t* order_min, size_t* order_max);
-void extraction_optimal_stefcal_improved(size_t* order_min, size_t* order_max);
-void extraction_original_stefcal_improved(size_t* order_min, size_t* order_max);
+void extraction_optimal_stefcal_improved(char* directory, size_t* order_min, size_t* order_max);
+void extraction_original_stefcal_improved(char* directory, size_t* order_min, size_t* order_max);
 void extraction_optimal_lm_non_adaptive_l1_l2(char* directory, size_t* order_min, size_t* order_max);
 void extraction_optimal_lm_non_adaptive_l1_l2_REDUCED_TIMESTEPS(char* directory, size_t* order_min, size_t* order_max);
 void extraction_original_lm_non_adaptive_l1_l2(char* directory, size_t* order_min, size_t* order_max);
@@ -141,8 +193,8 @@ void mapping_local(int* order, char* directory, char* filename, enum AlgorithmTy
     enum LayoutType layout = SQR;
     size_t n_steps = 600;
     double bas_len = 50;
-    int num_workers = 2;
-    size_t grid_length = 500;
+    int num_workers = workers(2);
+    size_t grid_length = grid_points(500);
     enum AlgorithmType algorithm_type = *algorithm;
     size_t amount_hyperparameters = 2;
     struct array* hyperparameters_bounds = new_set_a(&(size_t){1},
@@ -324,7 +376,7 @@ void pso_extract_trace_specific_all(char* directory, char* filename, int* order_
 
     char ellipses_points_filename[256];
     sprintf(ellipses_points_filename, "%s/extracted_trace_data/extracted_trace_pso_%s/ellipses_points.txt", directory, filename);
-    FILE *file_ellipses_points = fopen(ellipses_points_filename, "w");
+    FILE *file_ellipses_points = open_output(ellipses_points_filename, "w");
     if (file_ellipses_points == NULL) {
         perror("Error opening commands file");
         exit(EXIT_FAILURE);
@@ -332,7 +384,7 @@ void pso_extract_trace_specific_all(char* directory, char* filename, int* order_
 
     char violin_p_best_std_filename[256];
     sprintf(violin_p_best_std_filename, "%s/extracted_trace_data/extracted_trace_pso_%s/violin_p_best_std.txt", directory, filename);
-    FILE *file_txt_violin_p_best_std = fopen(violin_p_best_std_filename, "w");
+    FILE *file_txt_violin_p_best_std = open_output(violin_p_best_std_filename, "w");
     if (file_txt_violin_p_best_std == NULL) {
         perror("Error opening commands file");
         exit(EXIT_FAILURE);
@@ -340,7 +392,7 @@ void pso_extract_trace_specific_all(char* directory, char* filename, int* order_
 
     char violin_p_best_mean_filename[256];
     sprintf(violin_p_best_mean_filename, "%s/extracted_trace_data/extracted_trace_pso_%s/violin_p_best_mean.txt", directory, filename);
-    FILE *file_txt_violin_p_best_mean = fopen(violin_p_best_mean_filename, "w");
+    FILE *file_txt_violin_p_best_mean = open_output(violin_p_best_mean_filename, "w");
     if (file_txt_violin_p_best_mean == NULL) {
         perror("Error opening commands file");
         exit(EXIT_FAILURE);
@@ -348,7 +400,7 @@ void pso_extract_trace_specific_all(char* directory, char* filename, int* order_
 
     char violin_p_best_residual_norm_filename[256];
     sprintf(violin_p_best_residual_norm_filename, "%s/extracted_trace_data/extracted_trace_pso_%s/violin_p_best_residual_norm.txt", directory, filename);
-    FILE *file_txt_violin_p_best_residual_norm = fopen(violin_p_best_residual_norm_filename, "w");
+    FILE *file_txt_violin_p_best_residual_norm = open_output(violin_p_best_residual_norm_filename, "w");
     if (file_txt_violin_p_best_residual_norm == NULL) {
         perror("Error opening commands file");
         exit(EXIT_FAILURE);
@@ -688,7 +740,7 @@ void pso_extract_all_best_hyperparameters(char* directory, char* filename, int* 
 
     char all_points_filename[256];
     sprintf(all_points_filename, "%s/extracted_trace_data/extracted_trace_pso_%s/all_points.txt", directory, filename);
-    FILE *file_all_points = fopen(all_points_filename, "w");
+    FILE *file_all_points = open_output(all_points_filename, "w");
     if (file_all_points == NULL) {
         perror("Error opening commands file");
         exit(EXIT_FAILURE);
@@ -974,8 +1026,8 @@ void mapping_stochastic_adaptive_local(char* directory, int* order_min, int* ord
     enum LayoutType layout = SQR;
     size_t n_steps = 600;
     double bas_len = 50;
-    int num_workers = 30;
-    size_t grid_length = 50;
+    int num_workers = workers(30);
+    size_t grid_length = grid_points(50);
     enum AlgorithmType algorithm_type = STEFCAL_STOCHASTIC_ADAPTIVE;
     size_t amount_hyperparameters = 2;
     struct array* hyperparameters_bounds = new_set_a(&(size_t){1},
@@ -1034,10 +1086,10 @@ void mapping_pso_stochastic_adaptive_local(char* directory, int* order_min, int*
                                         0, 3, 2, 16
                                     });
 
-    size_t iterations_max = 50;
-    size_t num_particles = 25;
+    size_t iterations_max = pso_iterations(50);
+    size_t num_particles = pso_particles(25);
     size_t k = 9;
-    int num_workers = 30;
+    int num_workers = workers(30);
 
     char simulators_directory[256];
     sprintf(simulators_directory, "%s/simulators", directory);
@@ -1070,10 +1122,10 @@ void mapping_pso_stochastic_l1l2_local(char* directory, int* order_min, int* ord
                                     (double[6]){
                                         0.001, 3, 0.001, 3, 2, 16
                                     });
-    size_t iterations_max = 50;
-    size_t num_particles = 25;
+    size_t iterations_max = pso_iterations(50);
+    size_t num_particles = pso_particles(25);
     size_t k = 9;
-    int num_workers = 30;
+    int num_workers = workers(30);
     char simulators_directory[256];
     sprintf(simulators_directory, "%s/simulators", directory);
     for (int order = *order_min; order <= *order_max; order++) {
@@ -1104,10 +1156,10 @@ void mapping_pso_stochastic_fixed_b_local(char* directory, int* order_min, int* 
                                     (double[4]){
                                         0.001, 3, 0.001, 3
                                     });
-    size_t iterations_max = 50;
-    size_t num_particles = 25;
+    size_t iterations_max = pso_iterations(50);
+    size_t num_particles = pso_particles(25);
     size_t k = 9;
-    int num_workers = 30;
+    int num_workers = workers(30);
     char simulators_directory[256];
     sprintf(simulators_directory, "%s/simulators", directory);
     for (int order = *order_min; order <= *order_max; order++) {
@@ -1132,7 +1184,7 @@ void extraction_optimal_stefcal(char* directory, size_t* order_min, size_t* orde
     int seeds[] = {12345678, 23476934 ,98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2,3,5,10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     //order
     for (size_t order = *order_min; order <= *order_max; order++) {
@@ -1243,7 +1295,7 @@ void extraction_0_1_stefcal(char* directory, size_t* order_min, size_t* order_ma
     int seeds[] = {12345678, 23476934 ,98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2,3,5,10};
-    int num_workers = 20;
+    int num_workers = workers(20);
 
     //order
     for (size_t order = *order_min; order <= *order_max; order++) {
@@ -1339,12 +1391,12 @@ void extraction_0_1_stefcal(char* directory, size_t* order_min, size_t* order_ma
     }
 }
 
-void extraction_optimal_stefcal_improved(size_t* order_min, size_t* order_max) {
+void extraction_optimal_stefcal_improved(char* directory, size_t* order_min, size_t* order_max) {
     int pso_seeds[] = {49052764, 12039846 ,32609861, 18796345};
     int seeds[] = {12345678, 23476934 ,98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2,3,5,10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     //order
     for (size_t order = *order_min; order <= *order_max; order++) {
@@ -1368,10 +1420,10 @@ void extraction_optimal_stefcal_improved(size_t* order_min, size_t* order_max) {
 
                     for (size_t k = 0; k < 4; k++) {
                         char path_doubles[256];
-                        sprintf(path_doubles,"/media/pieter-colesky/Expansion/data/data_order_%ld/data_pso_stefcal_improved_order_%ld_seed_%d/seed_%d_order_%ld_snr_%.0f_maxamp_%.0f/double_data.array", order, order, pso_seeds[k], seeds[h], order, snrs[i], max_amps[j]);
+                        sprintf(path_doubles,"%s/data/data_order_%ld/data_pso_stefcal_improved_order_%ld_seed_%d/seed_%d_order_%ld_snr_%.0f_maxamp_%.0f/double_data.array", directory, order, order, pso_seeds[k], seeds[h], order, snrs[i], max_amps[j]);
                         struct array* doubles_array = read_from_file_a(path_doubles);
                         char path_positions[256];
-                        sprintf(path_positions,"/media/pieter-colesky/Expansion/data/data_order_%ld/data_pso_stefcal_improved_order_%ld_seed_%d/seed_%d_order_%ld_snr_%.0f_maxamp_%.0f/positions.array", order, order, pso_seeds[k], seeds[h], order, snrs[i], max_amps[j]);
+                        sprintf(path_positions,"%s/data/data_order_%ld/data_pso_stefcal_improved_order_%ld_seed_%d/seed_%d_order_%ld_snr_%.0f_maxamp_%.0f/positions.array", directory, order, order, pso_seeds[k], seeds[h], order, snrs[i], max_amps[j]);
                         struct array* positions_array = read_from_file_a(path_positions);
 
                         double iteration_mean = *(double*)get_element_a(doubles_array, (size_t[]){0});
@@ -1409,7 +1461,7 @@ void extraction_optimal_stefcal_improved(size_t* order_min, size_t* order_max) {
 
                     //Need to run the specific hyperparameters
                     char simulator_path [256];
-                    snprintf(simulator_path, sizeof(simulator_path), "/media/pieter-colesky/Expansion/simulators/sim_seed_%u_order_%ld_snr_%.0lf_maxamp_%.0lf.sconfig", seeds[h], order, snrs[i], max_amps[j]);
+                    snprintf(simulator_path, sizeof(simulator_path), "%s/simulators/sim_seed_%u_order_%ld_snr_%.0lf_maxamp_%.0lf.sconfig", directory, seeds[h], order, snrs[i], max_amps[j]);
                     struct Simulator* simulator = read_from_file_s(simulator_path);
                     struct Calibrator* calibrator = new_c(simulator);
                     set_parallel_c(calibrator, &num_workers);
@@ -1425,7 +1477,7 @@ void extraction_optimal_stefcal_improved(size_t* order_min, size_t* order_max) {
                     struct JaggedArray* last_residuals = get_last_residual_dc(calibrator->datacollector);         
                     
                     char directory_save[256];
-                    sprintf(directory_save,"/media/pieter-colesky/Expansion/data_optimal_solutions/stefcal_improved_optimal/data_order_%ld/data_stefcal_improved_order_%ld_seed_%d_snr_%.0f_maxamp_%.0f", order, order, seeds[h], snrs[i], max_amps[j]);
+                    sprintf(directory_save,"%s/data_optimal_solutions/stefcal_improved_optimal/data_order_%ld/data_stefcal_improved_order_%ld_seed_%d_snr_%.0f_maxamp_%.0f", directory, order, order, seeds[h], snrs[i], max_amps[j]);
                     printf("%s\n", directory_save);
                     create_directories(directory_save);
 
@@ -1451,11 +1503,11 @@ void extraction_optimal_stefcal_improved(size_t* order_min, size_t* order_max) {
 
 }
 
-void extraction_original_stefcal_improved(size_t* order_min, size_t* order_max) {
+void extraction_original_stefcal_improved(char* directory, size_t* order_min, size_t* order_max) {
     int seeds[] = {12345678, 23476934 ,98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2,3,5,10};
-    int num_workers = 25;
+    int num_workers = workers(25);
 
     //order
     for (size_t order = *order_min; order <= *order_max; order++) {
@@ -1466,7 +1518,7 @@ void extraction_original_stefcal_improved(size_t* order_min, size_t* order_max) 
                 //max_amps
                 for (size_t j = 0; j < 4; j++) {
                     char simulator_path [256];
-                    snprintf(simulator_path, sizeof(simulator_path), "/media/pieter-colesky/Expansion/simulators/sim_seed_%u_order_%ld_snr_%.0lf_maxamp_%.0lf.sconfig", seeds[h], order, snrs[i], max_amps[j]);
+                    snprintf(simulator_path, sizeof(simulator_path), "%s/simulators/sim_seed_%u_order_%ld_snr_%.0lf_maxamp_%.0lf.sconfig", directory, seeds[h], order, snrs[i], max_amps[j]);
                     struct Simulator* simulator = read_from_file_s(simulator_path);
 
                     struct Calibrator* calibrator_0 = new_c(simulator);
@@ -1627,7 +1679,7 @@ void extraction_original_stefcal_improved(size_t* order_min, size_t* order_max) 
 
                     char directory_save[256];
                     //printf("Saving to Directory\n");
-                    sprintf(directory_save,"/media/pieter-colesky/Expansion/data_optimal_solutions/stefcal_improved_original/data_order_%ld/data_stefcal_improved_order_%ld_seed_%d_snr_%.0f_maxamp_%.0f", order, order, seeds[h], snrs[i], max_amps[j]);
+                    sprintf(directory_save,"%s/data_optimal_solutions/stefcal_improved_original/data_order_%ld/data_stefcal_improved_order_%ld_seed_%d_snr_%.0f_maxamp_%.0f", directory, order, order, seeds[h], snrs[i], max_amps[j]);
                     printf("%s\n", directory_save);
                     create_directories(directory_save);
 
@@ -1673,7 +1725,7 @@ void extraction_optimal_lm_non_adaptive_l1_l2(char* directory, size_t* order_min
     int seeds[] = {12345678, 23476934 ,98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2,3,5,10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     //order
     for (size_t order = *order_min; order <= *order_max; order++) {
@@ -1779,7 +1831,7 @@ void extraction_optimal_lm_non_adaptive_l1_l2_REDUCED_TIMESTEPS(char* directory,
     int seeds[] = {12345678, 23476934 ,98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2,3,5,10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     //order
     for (size_t order = *order_min; order <= *order_max; order++) {
@@ -1885,7 +1937,7 @@ void extraction_original_lm_non_adaptive_l1_l2(char* directory, size_t* order_mi
     int seeds[] = {12345678, 23476934 ,98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2,3,5,10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     //order
     for (size_t order = *order_min; order <= *order_max; order++) {
@@ -1986,7 +2038,7 @@ void extraction_optimal_lm_adaptive(size_t* order_min, size_t* order_max, char* 
     int seeds[] = {12345678, 23476934 ,98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2,3,5,10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     //order
     for (size_t order = *order_min; order <= *order_max; order++) {
@@ -2094,7 +2146,7 @@ void extraction_optimal_lm_adaptive_REDUCED_TIMESTEPS(size_t* order_min, size_t*
     int seeds[] = {12345678, 23476934 ,98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2,3,5,10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     //order
     for (size_t order = *order_min; order <= *order_max; order++) {
@@ -2201,7 +2253,7 @@ void extraction_original_lm_adaptive(char* directory, size_t* order_min, size_t*
     int seeds[] = {12345678, 23476934 ,98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2,3,5,10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     //order
     for (size_t order = *order_min; order <= *order_max; order++) {
@@ -2372,7 +2424,7 @@ void create_x_y_points_from_optimal_stefcal(char* directory, size_t* order_min, 
         char directory_ursi_mean_last_residual_norm[300];
         sprintf(directory_ursi_mean_last_residual_norm,"%s/mean_last_residual_norm.txt", directory_ursi);
 
-        FILE *fp1 = fopen(directory_ursi_average_iterations, "w");
+        FILE *fp1 = open_output(directory_ursi_average_iterations, "w");
         if (fp1 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_average_iterations);
@@ -2381,7 +2433,7 @@ void create_x_y_points_from_optimal_stefcal(char* directory, size_t* order_min, 
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(directory_ursi_iteration_std, "w");
+        FILE *fp2 = open_output(directory_ursi_iteration_std, "w");
         if (fp2 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_std);
@@ -2390,7 +2442,7 @@ void create_x_y_points_from_optimal_stefcal(char* directory, size_t* order_min, 
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(directory_ursi_iteration_mad, "w");
+        FILE *fp3 = open_output(directory_ursi_iteration_mad, "w");
         if (fp3 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_mad);
@@ -2399,7 +2451,7 @@ void create_x_y_points_from_optimal_stefcal(char* directory, size_t* order_min, 
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(directory_ursi_mean_last_residual_norm, "w");
+        FILE *fp4 = open_output(directory_ursi_mean_last_residual_norm, "w");
         if (fp4 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_mean_last_residual_norm);
@@ -2528,7 +2580,7 @@ void create_x_y_points_from_original_stefcal(char* directory, size_t* order_min,
         char directory_ursi_mean_last_residual_norm[300];
         sprintf(directory_ursi_mean_last_residual_norm,"%s/mean_last_residual_norm.txt", directory_ursi);
 
-        FILE *fp1 = fopen(directory_ursi_average_iterations, "w");
+        FILE *fp1 = open_output(directory_ursi_average_iterations, "w");
         if (fp1 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_average_iterations);
@@ -2537,7 +2589,7 @@ void create_x_y_points_from_original_stefcal(char* directory, size_t* order_min,
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(directory_ursi_iteration_std, "w");
+        FILE *fp2 = open_output(directory_ursi_iteration_std, "w");
         if (fp2 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_std);
@@ -2546,7 +2598,7 @@ void create_x_y_points_from_original_stefcal(char* directory, size_t* order_min,
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(directory_ursi_iteration_mad, "w");
+        FILE *fp3 = open_output(directory_ursi_iteration_mad, "w");
         if (fp3 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_mad);
@@ -2555,7 +2607,7 @@ void create_x_y_points_from_original_stefcal(char* directory, size_t* order_min,
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(directory_ursi_mean_last_residual_norm, "w");
+        FILE *fp4 = open_output(directory_ursi_mean_last_residual_norm, "w");
         if (fp4 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_mean_last_residual_norm);
@@ -2684,7 +2736,7 @@ void create_x_y_points_from_optimal_stefcal_improved(char* directory, size_t* or
         char directory_ursi_mean_last_residual_norm[300];
         sprintf(directory_ursi_mean_last_residual_norm,"%s/mean_last_residual_norm.txt", directory_ursi);
 
-        FILE *fp1 = fopen(directory_ursi_average_iterations, "w");
+        FILE *fp1 = open_output(directory_ursi_average_iterations, "w");
         if (fp1 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_average_iterations);
@@ -2693,7 +2745,7 @@ void create_x_y_points_from_optimal_stefcal_improved(char* directory, size_t* or
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(directory_ursi_iteration_std, "w");
+        FILE *fp2 = open_output(directory_ursi_iteration_std, "w");
         if (fp2 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_std);
@@ -2702,7 +2754,7 @@ void create_x_y_points_from_optimal_stefcal_improved(char* directory, size_t* or
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(directory_ursi_iteration_mad, "w");
+        FILE *fp3 = open_output(directory_ursi_iteration_mad, "w");
         if (fp3 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_mad);
@@ -2711,7 +2763,7 @@ void create_x_y_points_from_optimal_stefcal_improved(char* directory, size_t* or
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(directory_ursi_mean_last_residual_norm, "w");
+        FILE *fp4 = open_output(directory_ursi_mean_last_residual_norm, "w");
         if (fp4 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_mean_last_residual_norm);
@@ -2840,7 +2892,7 @@ void create_x_y_points_from_original_stefcal_improved(char* directory, size_t* o
         char directory_ursi_mean_last_residual_norm[300];
         sprintf(directory_ursi_mean_last_residual_norm,"%s/mean_last_residual_norm.txt", directory_ursi);
 
-        FILE *fp1 = fopen(directory_ursi_average_iterations, "w");
+        FILE *fp1 = open_output(directory_ursi_average_iterations, "w");
         if (fp1 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_average_iterations);
@@ -2849,7 +2901,7 @@ void create_x_y_points_from_original_stefcal_improved(char* directory, size_t* o
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(directory_ursi_iteration_std, "w");
+        FILE *fp2 = open_output(directory_ursi_iteration_std, "w");
         if (fp2 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_std);
@@ -2858,7 +2910,7 @@ void create_x_y_points_from_original_stefcal_improved(char* directory, size_t* o
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(directory_ursi_iteration_mad, "w");
+        FILE *fp3 = open_output(directory_ursi_iteration_mad, "w");
         if (fp3 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_mad);
@@ -2867,7 +2919,7 @@ void create_x_y_points_from_original_stefcal_improved(char* directory, size_t* o
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(directory_ursi_mean_last_residual_norm, "w");
+        FILE *fp4 = open_output(directory_ursi_mean_last_residual_norm, "w");
         if (fp4 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_mean_last_residual_norm);
@@ -2996,7 +3048,7 @@ void create_x_y_points_from_optimal_lm_non_adaptive_l1_l2(char* directory, size_
         char directory_ursi_mean_last_residual_norm[300];
         sprintf(directory_ursi_mean_last_residual_norm,"%s/mean_last_residual_norm_check.txt", directory_ursi);
 
-        FILE *fp1 = fopen(directory_ursi_average_iterations, "w");
+        FILE *fp1 = open_output(directory_ursi_average_iterations, "w");
         if (fp1 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_average_iterations);
@@ -3005,7 +3057,7 @@ void create_x_y_points_from_optimal_lm_non_adaptive_l1_l2(char* directory, size_
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(directory_ursi_iteration_std, "w");
+        FILE *fp2 = open_output(directory_ursi_iteration_std, "w");
         if (fp2 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_std);
@@ -3014,7 +3066,7 @@ void create_x_y_points_from_optimal_lm_non_adaptive_l1_l2(char* directory, size_
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(directory_ursi_iteration_mad, "w");
+        FILE *fp3 = open_output(directory_ursi_iteration_mad, "w");
         if (fp3 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_mad);
@@ -3023,7 +3075,7 @@ void create_x_y_points_from_optimal_lm_non_adaptive_l1_l2(char* directory, size_
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(directory_ursi_mean_last_residual_norm, "w");
+        FILE *fp4 = open_output(directory_ursi_mean_last_residual_norm, "w");
         if (fp4 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_mean_last_residual_norm);
@@ -3152,7 +3204,7 @@ void create_x_y_points_from_original_lm_non_adaptive_l1_l2(char* directory, size
         char directory_ursi_mean_last_residual_norm[300];
         sprintf(directory_ursi_mean_last_residual_norm,"%s/mean_last_residual_norm_check.txt", directory_ursi);
 
-        FILE *fp1 = fopen(directory_ursi_average_iterations, "w");
+        FILE *fp1 = open_output(directory_ursi_average_iterations, "w");
         if (fp1 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_average_iterations);
@@ -3161,7 +3213,7 @@ void create_x_y_points_from_original_lm_non_adaptive_l1_l2(char* directory, size
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(directory_ursi_iteration_std, "w");
+        FILE *fp2 = open_output(directory_ursi_iteration_std, "w");
         if (fp2 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_std);
@@ -3170,7 +3222,7 @@ void create_x_y_points_from_original_lm_non_adaptive_l1_l2(char* directory, size
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(directory_ursi_iteration_mad, "w");
+        FILE *fp3 = open_output(directory_ursi_iteration_mad, "w");
         if (fp3 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_mad);
@@ -3179,7 +3231,7 @@ void create_x_y_points_from_original_lm_non_adaptive_l1_l2(char* directory, size
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(directory_ursi_mean_last_residual_norm, "w");
+        FILE *fp4 = open_output(directory_ursi_mean_last_residual_norm, "w");
         if (fp4 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_mean_last_residual_norm);
@@ -3308,7 +3360,7 @@ void create_x_y_points_from_optimal_lm_adaptive(char* directory, size_t* order_m
         char directory_ursi_mean_last_residual_norm[300];
         sprintf(directory_ursi_mean_last_residual_norm,"%s/mean_last_residual_norm.txt", directory_ursi);
 
-        FILE *fp1 = fopen(directory_ursi_average_iterations, "w");
+        FILE *fp1 = open_output(directory_ursi_average_iterations, "w");
         if (fp1 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_average_iterations);
@@ -3317,7 +3369,7 @@ void create_x_y_points_from_optimal_lm_adaptive(char* directory, size_t* order_m
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(directory_ursi_iteration_std, "w");
+        FILE *fp2 = open_output(directory_ursi_iteration_std, "w");
         if (fp2 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_std);
@@ -3326,7 +3378,7 @@ void create_x_y_points_from_optimal_lm_adaptive(char* directory, size_t* order_m
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(directory_ursi_iteration_mad, "w");
+        FILE *fp3 = open_output(directory_ursi_iteration_mad, "w");
         if (fp3 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_mad);
@@ -3335,7 +3387,7 @@ void create_x_y_points_from_optimal_lm_adaptive(char* directory, size_t* order_m
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(directory_ursi_mean_last_residual_norm, "w");
+        FILE *fp4 = open_output(directory_ursi_mean_last_residual_norm, "w");
         if (fp4 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_mean_last_residual_norm);
@@ -3464,7 +3516,7 @@ void create_x_y_points_from_original_lm_adaptive(char* directory, size_t* order_
         char directory_ursi_mean_last_residual_norm[300];
         sprintf(directory_ursi_mean_last_residual_norm,"%s/mean_last_residual_norm.txt", directory_ursi);
 
-        FILE *fp1 = fopen(directory_ursi_average_iterations, "w");
+        FILE *fp1 = open_output(directory_ursi_average_iterations, "w");
         if (fp1 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_average_iterations);
@@ -3473,7 +3525,7 @@ void create_x_y_points_from_original_lm_adaptive(char* directory, size_t* order_
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(directory_ursi_iteration_std, "w");
+        FILE *fp2 = open_output(directory_ursi_iteration_std, "w");
         if (fp2 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_std);
@@ -3482,7 +3534,7 @@ void create_x_y_points_from_original_lm_adaptive(char* directory, size_t* order_
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(directory_ursi_iteration_mad, "w");
+        FILE *fp3 = open_output(directory_ursi_iteration_mad, "w");
         if (fp3 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_iteration_mad);
@@ -3491,7 +3543,7 @@ void create_x_y_points_from_original_lm_adaptive(char* directory, size_t* order_
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(directory_ursi_mean_last_residual_norm, "w");
+        FILE *fp4 = open_output(directory_ursi_mean_last_residual_norm, "w");
         if (fp4 == NULL)
         {
             printf("Error opening the file %s", directory_ursi_mean_last_residual_norm);
@@ -3515,13 +3567,13 @@ void mapping_pso_lm_adaptive_local(char* directory, int* order_min, int* order_m
                                       0.001, 20,1.001,20
                                     });
 
-    size_t iterations_max = 50;
-    size_t num_particles = 25;
+    size_t iterations_max = pso_iterations(50);
+    size_t num_particles = pso_particles(25);
     
-    char* simulators_directory = "/media/pieter/Expansion/simulators";
-    // char* simulators_directory = "./data/simulators";
+    char simulators_directory[512];
+    sprintf(simulators_directory, "%s/simulators", directory);
     size_t k = 5;
-    int num_workers = 30;
+    int num_workers = workers(30);
 
     for (int order = *order_min; order <= *order_max; order++) {
         for (size_t i = 0; i < 4; i++) {
@@ -3604,13 +3656,13 @@ void mapping_pso_local(char* directory, char* filename, enum AlgorithmType* algo
                                     (double[4]){
                                         -0.4, 3,-0.4,3
                                     });
-    size_t iterations_max = 50;
-    size_t num_particles = 25;
+    size_t iterations_max = pso_iterations(50);
+    size_t num_particles = pso_particles(25);
 
     char simulators_directory[256];
     sprintf(simulators_directory,"%s/simulators",directory);
     size_t k = 9;
-    int num_workers = 7;
+    int num_workers = workers(7);
 
     for (int order = *order_min; order <= *order_max; order++) {
         char dd_directory[256];
@@ -4011,8 +4063,8 @@ void mapping_adam_fixed_alpha_local(char* directory, int* order_min, int* order_
     enum LayoutType layout = SQR;
     size_t n_steps = 600;
     double bas_len = 50;
-    int num_workers = 30;
-    size_t grid_length = 200;
+    int num_workers = workers(30);
+    size_t grid_length = grid_points(200);
     enum AlgorithmType algorithm_type = ADAM_FIXED_ALPHA;
     size_t amount_hyperparameters = 2;
     struct array* hyperparameters_bounds = new_set_a(&(size_t){1},
@@ -4075,8 +4127,8 @@ void mapping_stochastic_fixed_b_local(char* directory, int* order_min, int* orde
     enum LayoutType layout = SQR;
     size_t n_steps = 600;
     double bas_len = 50;
-    int num_workers = 30;
-    size_t grid_length = 200;
+    int num_workers = workers(30);
+    size_t grid_length = grid_points(200);
     enum AlgorithmType algorithm_type = STEFCAL_STOCHASTIC_FIXED_B;
     size_t amount_hyperparameters = 2;
     struct array* hyperparameters_bounds = new_set_a(&(size_t){1},
@@ -4159,10 +4211,10 @@ void mapping_pso_adam_fixed_alpha_local(char* directory, int* order_min, int* or
                                         0.7, 0.9999, 0.7, 0.9999
                                     });
 
-    size_t iterations_max = 50;
-    size_t num_particles = 25;
+    size_t iterations_max = pso_iterations(50);
+    size_t num_particles = pso_particles(25);
     size_t k = 9;
-    int num_workers = 8;
+    int num_workers = workers(8);
 
     char simulators_directory[256];
     sprintf(simulators_directory, "%s/simulators", directory);
@@ -4329,7 +4381,7 @@ void extract_all_best_b1_b2_alpha_adam_3d(char* directory, size_t* order_min, si
 
     char all_points_filename[600];
     sprintf(all_points_filename, "%s/all_points.txt", out_directory);
-    FILE *file_all_points = fopen(all_points_filename, "w");
+    FILE *file_all_points = open_output(all_points_filename, "w");
     if (file_all_points == NULL) {
         perror("Error opening all_points file");
         exit(EXIT_FAILURE);
@@ -4447,7 +4499,7 @@ void extract_all_best_b1_b2_alpha_adam(char* directory, size_t* order_min, size_
 
     char all_points_filename[600];
     sprintf(all_points_filename, "%s/all_points.txt", out_directory);
-    FILE *file_all_points = fopen(all_points_filename, "w");
+    FILE *file_all_points = open_output(all_points_filename, "w");
     if (file_all_points == NULL) {
         perror("Error opening all_points file");
         exit(EXIT_FAILURE);
@@ -4693,7 +4745,7 @@ void extract_all_best_l1_l2_b_stochastic(char* directory, size_t* order_min, siz
 
     char all_points_filename[600];
     sprintf(all_points_filename, "%s/all_points.txt", out_directory);
-    FILE *file_all_points = fopen(all_points_filename, "w");
+    FILE *file_all_points = open_output(all_points_filename, "w");
     if (file_all_points == NULL) {
         perror("Error opening all_points file");
         exit(EXIT_FAILURE);
@@ -5857,7 +5909,7 @@ void extraction_optimal_adam_3d(char* directory, size_t* order_min, size_t* orde
     int seeds[] = {12345678, 23476934, 98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2, 3, 5, 10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     for (size_t order = *order_min; order <= *order_max; order++) {
         for (size_t h = 0; h < 4; h++) {
@@ -5965,7 +6017,7 @@ void extraction_optimal_adam_fixed_alpha(char* directory, size_t* order_min, siz
     int seeds[] = {12345678, 23476934, 98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2, 3, 5, 10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     for (size_t order = *order_min; order <= *order_max; order++) {
         for (size_t h = 0; h < 4; h++) {
@@ -6081,7 +6133,7 @@ void extraction_original_adam_fixed_alpha(char* directory, size_t* order_min, si
     int seeds[] = {12345678, 23476934, 98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2, 3, 5, 10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     double default_B1 = 0.9;
     double default_B2 = 0.999;
@@ -6160,7 +6212,7 @@ void extraction_optimal_stochastic(char* directory, size_t* order_min, size_t* o
     int seeds[] = {12345678, 23476934, 98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2, 3, 5, 10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     for (size_t order = *order_min; order <= *order_max; order++) {
         for (size_t h = 0; h < 4; h++) {
@@ -6276,7 +6328,7 @@ void extraction_original_stochastic(char* directory, size_t* order_min, size_t* 
     int seeds[] = {12345678, 23476934, 98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2, 3, 5, 10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     double default_l1 = 0.5;
     double default_l2 = 0.5;
@@ -6447,22 +6499,22 @@ static void create_x_y_points_adam_fixed_alpha_variant(char* directory, size_t* 
         char path_res[600];
         sprintf(path_res, "%s/mean_last_residual_norm.txt", directory_out);
 
-        FILE *fp1 = fopen(path_mean, "w");
+        FILE *fp1 = open_output(path_mean, "w");
         if (fp1 == NULL) { printf("Error opening %s\n", path_mean); return; }
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(path_std, "w");
+        FILE *fp2 = open_output(path_std, "w");
         if (fp2 == NULL) { printf("Error opening %s\n", path_std); return; }
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(path_mad, "w");
+        FILE *fp3 = open_output(path_mad, "w");
         if (fp3 == NULL) { printf("Error opening %s\n", path_mad); return; }
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(path_res, "w");
+        FILE *fp4 = open_output(path_res, "w");
         if (fp4 == NULL) { printf("Error opening %s\n", path_res); return; }
         fprintf(fp4, "%f\n", mean_last_residual_norm);
         fclose(fp4);
@@ -6588,22 +6640,22 @@ static void create_x_y_points_stochastic_variant(char* directory, size_t* order_
         char path_res[600];
         sprintf(path_res, "%s/mean_last_residual_norm.txt", directory_out);
 
-        FILE *fp1 = fopen(path_mean, "w");
+        FILE *fp1 = open_output(path_mean, "w");
         if (fp1 == NULL) { printf("Error opening %s\n", path_mean); return; }
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(path_std, "w");
+        FILE *fp2 = open_output(path_std, "w");
         if (fp2 == NULL) { printf("Error opening %s\n", path_std); return; }
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(path_mad, "w");
+        FILE *fp3 = open_output(path_mad, "w");
         if (fp3 == NULL) { printf("Error opening %s\n", path_mad); return; }
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(path_res, "w");
+        FILE *fp4 = open_output(path_res, "w");
         if (fp4 == NULL) { printf("Error opening %s\n", path_res); return; }
         fprintf(fp4, "%f\n", mean_last_residual_norm);
         fclose(fp4);
@@ -6642,7 +6694,7 @@ void extraction_optimal_stochastic_adaptive(char* directory, size_t* order_min, 
     int seeds[] = {12345678, 23476934, 98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2, 3, 5, 10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     for (size_t order = *order_min; order <= *order_max; order++) {
         for (size_t h = 0; h < 4; h++) {
@@ -6757,7 +6809,7 @@ void extraction_original_stochastic_adaptive(char* directory, size_t* order_min,
     int seeds[] = {12345678, 23476934, 98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2, 3, 5, 10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     double default_lambda = 0.5;
 
@@ -6986,7 +7038,7 @@ void compare_stefcal_v2(char* directory) {
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2, 10};
     size_t orders[] = {2, 5, 8, 10};
-    int num_workers = 28;
+    int num_workers = workers(28);
 
     double worst_it = 0.0, worst_sd = 0.0, worst_rn = 0.0;
     size_t compared = 0, mismatched = 0;
@@ -7080,7 +7132,7 @@ void extended_research_sas_dostefcal_v2(char* directory, size_t* order_min, size
     int seeds[] = {12345678, 23476934, 98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2, 3, 5, 10};
-    int num_workers = 28;
+    int num_workers = workers(28);
     const size_t N_RUNS = 10;
     const size_t N_ALGOS = 4;
     const char* algo_labels[4] = {"sas_0.5_0.5", "dostefcal", "dostefcal_v2", "stefcal"};
@@ -7173,7 +7225,7 @@ void extended_research_sas_dostefcal_v2(char* directory, size_t* order_min, size
                     snprintf(csv_path, sizeof(csv_path), "%s/order_%02ld_seed_%d_snr_%.0f_maxamp_%.0f.csv",
                              out_dir, order, seeds[h], snrs[i], max_amps[j]);
                     printf("%s\n", csv_path);
-                    FILE* csv_file = fopen(csv_path, "w");
+                    FILE* csv_file = open_output(csv_path, "w");
                     if (csv_file == NULL) {
                         perror("Error opening CSV file");
                         exit(EXIT_FAILURE);
@@ -7208,7 +7260,7 @@ void extended_research_sas_stefcal(char* directory, size_t* order_min, size_t* o
     int seeds[] = {12345678, 23476934, 98976433, 49052764};
     double snrs[] = {1000, 10, 0, -1};
     double max_amps[] = {2, 3, 5, 10};
-    int num_workers = 28;
+    int num_workers = workers(28);
     const size_t N_RUNS = 10;
     const size_t N_ALGOS = 4;
     const char* algo_labels[4] = {"sas_0.5_0.5", "sas_0_1", "stefcal", "lm_adaptive"};
@@ -7303,7 +7355,7 @@ void extended_research_sas_stefcal(char* directory, size_t* order_min, size_t* o
                     snprintf(csv_path, sizeof(csv_path), "%s/order_%02ld_seed_%d_snr_%.0f_maxamp_%.0f.csv",
                              out_dir, order, seeds[h], snrs[i], max_amps[j]);
                     printf("%s\n", csv_path);
-                    FILE* csv_file = fopen(csv_path, "w");
+                    FILE* csv_file = open_output(csv_path, "w");
                     if (csv_file == NULL) {
                         perror("Error opening CSV file");
                         exit(EXIT_FAILURE);
@@ -7475,7 +7527,7 @@ static void raw_sas_solve_and_save(char* directory, const char* variant, const c
                                    size_t order, int data_seed, double snr, double max_amp,
                                    double l1, double l2, size_t b0,
                                    FILE* csv_summary, FILE* csv_trace) {
-    int num_workers = 28;
+    int num_workers = workers(28);
     size_t N = order * order;
 
     char simulator_path[700];
@@ -7624,9 +7676,9 @@ void extraction_raw_iterations_sas(char* directory, size_t* order_min, size_t* o
             snprintf(summary_path, sizeof(summary_path), "%s/%s_order_%02zu.csv", summary_dir, variants[v], order);
             snprintf(trace_path, sizeof(trace_path), "%s/%s_order_%02zu.csv", trace_dir, variants[v], order);
 
-            FILE* csv_summary = fopen(summary_path, "w");
+            FILE* csv_summary = open_output(summary_path, "w");
             if (csv_summary == NULL) { perror("Error opening summary CSV"); exit(EXIT_FAILURE); }
-            FILE* csv_trace = fopen(trace_path, "w");
+            FILE* csv_trace = open_output(trace_path, "w");
             if (csv_trace == NULL) { perror("Error opening b-trace CSV"); exit(EXIT_FAILURE); }
 
             fprintf(csv_summary, "order,N,seed,snr,maxamp,variant,pso_family,l1,l2,b0,n_timesteps,mean_iterations_raw,std_iterations_raw,mean_sum_b,std_sum_b,mean_b_per_iteration,mean_last_residual_norm\n");
@@ -7776,22 +7828,22 @@ static void create_x_y_points_stochastic_adaptive_variant(char* directory, size_
         char path_res[600];
         sprintf(path_res, "%s/mean_last_residual_norm.txt", directory_out);
 
-        FILE *fp1 = fopen(path_mean, "w");
+        FILE *fp1 = open_output(path_mean, "w");
         if (fp1 == NULL) { printf("Error opening %s\n", path_mean); return; }
         fprintf(fp1, "%f\n", mean_iterations);
         fclose(fp1);
 
-        FILE *fp2 = fopen(path_std, "w");
+        FILE *fp2 = open_output(path_std, "w");
         if (fp2 == NULL) { printf("Error opening %s\n", path_std); return; }
         fprintf(fp2, "%f\n", std_iterations);
         fclose(fp2);
 
-        FILE *fp3 = fopen(path_mad, "w");
+        FILE *fp3 = open_output(path_mad, "w");
         if (fp3 == NULL) { printf("Error opening %s\n", path_mad); return; }
         fprintf(fp3, "%f\n", mad_iterations);
         fclose(fp3);
 
-        FILE *fp4 = fopen(path_res, "w");
+        FILE *fp4 = open_output(path_res, "w");
         if (fp4 == NULL) { printf("Error opening %s\n", path_res); return; }
         fprintf(fp4, "%f\n", mean_last_residual_norm);
         fclose(fp4);
@@ -7820,7 +7872,6 @@ void create_x_y_points_from_original_stochastic_adaptive(char* directory, size_t
 enum ArgKind {
     K_SZ,        /* (directory, size_t* order_min, size_t* order_max)              */
     K_SZ_REV,    /* (size_t* order_min, size_t* order_max, directory)              */
-    K_SZ_NODIR,  /* (size_t* order_min, size_t* order_max)                         */
     K_INT,       /* (directory, int* order_min, int* order_max)                    */
     K_NAMED,     /* (directory, filename, int* order_min, int* order_max)          */
     K_DIR,       /* (directory)                                                    */
@@ -7926,9 +7977,9 @@ static const struct Command COMMANDS[] = {
      "DOStEFCal iterations, standard deviation and residual norm"},
     {"perf-stefcal-def",    "performance", K_SZ,      (fnptr)extraction_0_1_stefcal,
      "StEFCal at its default (1,0) / (0,1) hyperparameters"},
-    {"perf-nos-opt",        "performance", K_SZ_NODIR,(fnptr)extraction_optimal_stefcal_improved,
+    {"perf-nos-opt",        "performance", K_SZ,      (fnptr)extraction_optimal_stefcal_improved,
      "DONOS iterations, standard deviation and residual norm"},
-    {"perf-nos-def",        "performance", K_SZ_NODIR,(fnptr)extraction_original_stefcal_improved,
+    {"perf-nos-def",        "performance", K_SZ,      (fnptr)extraction_original_stefcal_improved,
      "NOS at its default hyperparameters"},
     {"perf-lm-eo-opt",      "performance", K_SZ,      (fnptr)extraction_optimal_lm_non_adaptive_l1_l2,
      "DOLM (lambda_even, lambda_odd)"},
@@ -8030,7 +8081,11 @@ static void usage(void) {
     printf("  -d <directory>   data directory (default: %s)\n", DEFAULT_DIRECTORY);
     printf("  -o <min> <max>   antenna order range, inclusive (default: 2 2)\n");
     printf("  -a <algorithm>   solver the command applies to (default: stefcal)\n");
-    printf("  -s <index>       PSO seed index, 0-3 (default: 0)\n\n");
+    printf("  -s <index>       PSO seed index, 0-3 (default: 0)\n");
+    printf("  -w <workers>     calibration threads (default: as published)\n");
+    printf("  -g <points>      grid points per hyperparameter axis (default: as published)\n");
+    printf("  -i <iterations>  PSO iterations (default: as published)\n");
+    printf("  -p <particles>   PSO particles (default: as published)\n\n");
     printf("Algorithms:\n ");
     for (i = 0; i < NUM_ALGORITHMS; i++) {
         printf(" %s", ALGORITHMS[i].name);
@@ -8083,6 +8138,14 @@ int main(int argc, char* argv[]) {
             order_max = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-s") == 0 && i + 1 < (size_t)argc) {
             iteration = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-w") == 0 && i + 1 < (size_t)argc) {
+            override_workers = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-g") == 0 && i + 1 < (size_t)argc) {
+            override_grid_length = (size_t)atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-i") == 0 && i + 1 < (size_t)argc) {
+            override_pso_iterations = (size_t)atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-p") == 0 && i + 1 < (size_t)argc) {
+            override_pso_particles = (size_t)atoi(argv[++i]);
         } else if (strcmp(argv[i], "-a") == 0 && i + 1 < (size_t)argc) {
             const char* name = argv[++i];
             size_t j;
@@ -8112,6 +8175,10 @@ int main(int argc, char* argv[]) {
         printf("PSO seed index out of range: %d\n", iteration);
         return 1;
     }
+    if (override_workers < 0) {
+        printf("Worker count must be positive.\n");
+        return 1;
+    }
 
     {
         size_t sz_min = (size_t)order_min;
@@ -8126,9 +8193,6 @@ int main(int argc, char* argv[]) {
                 break;
             case K_SZ_REV:
                 ((void (*)(size_t*, size_t*, char*))command->fn)(&sz_min, &sz_max, directory);
-                break;
-            case K_SZ_NODIR:
-                ((void (*)(size_t*, size_t*))command->fn)(&sz_min, &sz_max);
                 break;
             case K_INT:
                 ((void (*)(char*, int*, int*))command->fn)(directory, &order_min, &order_max);

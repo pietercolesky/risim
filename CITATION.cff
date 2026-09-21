@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "RISim: Radio Interferometric Simulation and Calibration"
+message: "If you use this software, please cite the paper below."
+type: software
+authors:
+  - family-names: Colesky
+    given-names: Pieter T.
+  - family-names: Grobler
+    given-names: Trienko L.
+  - family-names: Kleynhans
+    given-names: Waldo
+license: MIT
+repository-code: "https://github.com/pietercolesky/risim"
+preferred-citation:
+  type: article
+  title: "Hyperparameter Optimization of Calibration Solvers"
+  authors:
+    - family-names: Colesky
+      given-names: Pieter T.
+    - family-names: Grobler
+      given-names: Trienko L.
+    - family-names: Kleynhans
+      given-names: Waldo
+  journal: "Monthly Notices of the Royal Astronomical Society"
