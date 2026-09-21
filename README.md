@@ -104,7 +104,20 @@ make local
 Step 4 writes `iteration_means.array`, `iteration_stds.array` and `residual_norms.array`
 per dataset under `simulation_environment/extracted_heatmap_data/`.
 
-Drop `-g` and `-w` to reproduce the paper's actual grid — see [Runtimes](#runtimes) first.
+To exercise the swarm branch and the extraction that depends on it as well:
+
+```bash
+./risim dict-pso -a stefcal -o 2 2
+for s in 0 1 2 3; do ./risim pso -a stefcal -s $s -o 2 2 -i 2 -p 2 -w 8; done
+./risim pso-best  -a stefcal -o 2 2     # ellipses and scatter points
+./risim perf-stefcal-opt -o 2 2 -w 8    # re-run at the hyperparameters found
+./risim perf-stefcal-def -o 2 2 -w 8
+./risim points-stefcal-opt -o 2 2       # convergence summaries
+./risim points-stefcal-def -o 2 2
+```
+
+The whole sequence takes about fifteen minutes on a workstation. Drop `-g`, `-i`, `-p`
+and `-w` to reproduce the paper — see [Runtimes](#runtimes) first.
 
 ---
 
@@ -124,9 +137,12 @@ Every stage reads what the previous one wrote under the data directory (`-d`, de
 4. **round two** — ADAM and SAS have three hyperparameters. Their first round searches
    the full box; `best-alpha-adam` and `best-b-sas` then fix one hyperparameter so the
    second round searches the remaining plane.
-5. **extraction** — turn the stored results into the `.txt`, `.array` and `.csv` files
-   the Python plotting scripts read: `heatmap*`, `pso-*`, `perf-*`, `points-*`,
-   `pbest-*` and `iterations-*`.
+5. **extraction** — turn the stored results into the files the plotting scripts read.
+   `heatmap*` and `pso-*` summarise the two searches. `perf-*` then re-runs the solver
+   at the optimal (or default) hyperparameters and stores the per-dataset result, and
+   `points-*` reduces those into the scatter points, the confidence ellipses and the
+   `iterations_mean/std/mad.txt` and `mean_last_residual_norm.txt` summaries. So
+   `perf-*` must be run before the matching `points-*`.
 
 An antenna order *n* means an *n*×*n* array, so order 2 is 4 antennae and order 10 is 100.
 The paper covers orders 2 to 10.
@@ -200,11 +216,11 @@ for s in 0 1 2 3; do ./risim pso -a $ALG -s $s -o 2 10; done
 ./risim pso-best   -a $ALG -o 2 10
 ./risim pso-traces -a $ALG -o 2 10
 
-# convergence tables, optimized against default
+# re-run the solver at the optimal and at the default hyperparameters
 ./risim perf-$S-opt -o 2 10
 ./risim perf-$S-def -o 2 10
 
-# scatter points and confidence ellipses
+# reduce those runs to the scatter points, ellipses and convergence summaries
 ./risim points-$S-opt -o 2 10
 ./risim points-$S-def -o 2 10
 ```
@@ -300,8 +316,14 @@ runs over all 64 datasets of an antenna order. Measured on a 32-core workstation
 
 Cost also grows quickly with antenna order, since the number of baselines grows as *N*².
 The published sweep over orders 2 to 10 for all six solvers was run on a cluster, not a
-workstation. Use `-g`, `-i` and `-p` to explore the pipeline locally, and expect the
-absolute numbers from a reduced run to differ from the paper's.
+workstation.
+
+Use `-g`, `-i` and `-p` to see the pipeline work, not to obtain results. A reduced run
+does not merely lose precision: the search is too coarse to find an optimum at all. A
+full pass at `-g 2 -i 2 -p 2` gives StEFCal a mean of 431.3 iterations at the
+"optimal" hyperparameters against 425.1 at the default ones — that is, the tuned solver
+comes out worse, which is the opposite of the paper's result. Reproducing the paper
+means running the published settings.
 
 ---
 
@@ -333,9 +355,19 @@ relevant `run_*_tests()` function:
 | `scripts/` | build-and-run wrappers used by `run.sh` |
 | `simulation_environment/` | default data directory; generated content is git-ignored |
 
-Generated data is written under the data directory as `simulators/` (datasets),
-`data/` (search results), `extracted_heatmap_data/` and `data_optimal_solutions/`
-(extracted results). None of it is tracked by git.
+Generated data is written under the data directory:
+
+| Directory | Written by | Contents |
+| --- | --- | --- |
+| `simulators/` | `simulate` | the visibility datasets |
+| `data/` | `dict-*`, `grid*`, `pso*` | data dictionaries and the stored search results |
+| `extracted_heatmap_data/` | `heatmap*` | `iteration_means`, `iteration_stds`, `residual_norms` per dataset |
+| `extracted_trace_data/` | `pso-best`, `pso-traces` | `all_points.txt`, `ellipses_points.txt`, the violin data |
+| `data_optimal_solutions/` | `perf-*` | per-dataset results at the optimal and default hyperparameters |
+| `data_optimal_solutions_extracted_data_points/` | `points-*` | `iterations_mean/std/mad.txt`, `mean_last_residual_norm.txt` |
+| `extracted_p_best/` | `pbest-*` | per-particle best arrays |
+
+None of it is tracked by git.
 
 ---
 

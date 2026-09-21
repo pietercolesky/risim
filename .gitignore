@@ -12,6 +12,7 @@ extracted_heatmap_data/
 extracted_trace_data/
 data_optimal_solutions/
 data_optimal_solutions_extracted_data_points/
+extracted_p_best/
 bin/
 test/
 *.sconfig

@@ -99,6 +99,21 @@ static FILE* open_output(const char* path, const char* mode) {
     return fopen(path, mode);
 }
 
+
+/**
+ * Directory the per-particle best arrays are written into.
+ *
+ * These used to be saved to the working directory, so where the output landed
+ * depended on where risim happened to be started from. They now sit under the
+ * data directory with everything else.
+ */
+static char* p_best_dir(char* directory) {
+    static char path[512];
+    snprintf(path, sizeof(path), "%s/extracted_p_best", directory);
+    create_directories(path);
+    return path;
+}
+
 int main(int argc, char* argv[]);
 
 void mapping_local(int* order, char* directory, char* filename, enum AlgorithmType* algorithm);
@@ -688,10 +703,10 @@ void pso_extract_trace_specific_all(char* directory, char* filename, int* order_
             free(p_best_l_1_std);
             free(p_best_l_2_std);
 
-            save_to_file_a(final_p_best_l_2, ".", "pso_p_best_l_2");
-            save_to_file_a(final_p_best_l_1, ".", "pso_p_best_l_1");
-            save_to_file_a(final_p_best_mean, ".", "pso_p_best_mean");
-            save_to_file_a(final_p_best_std, ".", "pso_p_best_std");
+            save_to_file_a(final_p_best_l_2, p_best_dir(directory), "pso_p_best_l_2");
+            save_to_file_a(final_p_best_l_1, p_best_dir(directory), "pso_p_best_l_1");
+            save_to_file_a(final_p_best_mean, p_best_dir(directory), "pso_p_best_mean");
+            save_to_file_a(final_p_best_std, p_best_dir(directory), "pso_p_best_std");
 
             free_a(final_p_best_l_1);
             free_a(final_p_best_l_2);
@@ -4988,10 +5003,10 @@ void extract_normal_p_best_adam_fixed_alpha(char* directory, int* order_min, int
         }
     }
 
-    save_to_file_a(p_best_l_1, "", "normal_p_best_l_1");
-    save_to_file_a(p_best_l_2, "", "normal_p_best_l_2");
-    save_to_file_a(p_best_mean, "", "normal_p_best_mean");
-    save_to_file_a(p_best_std, "", "normal_p_best_std");
+    save_to_file_a(p_best_l_1, p_best_dir(directory), "normal_p_best_l_1");
+    save_to_file_a(p_best_l_2, p_best_dir(directory), "normal_p_best_l_2");
+    save_to_file_a(p_best_mean, p_best_dir(directory), "normal_p_best_mean");
+    save_to_file_a(p_best_std, p_best_dir(directory), "normal_p_best_std");
 
     free_a(p_best_l_1);
     free_a(p_best_l_2);
@@ -5126,10 +5141,10 @@ void extract_normal_p_best_stefcal(char* directory, int* order_min, int* order_m
         }
     }
 
-    save_to_file_a(p_best_l_1, "", "stefcal_normal_p_best_l_1");
-    save_to_file_a(p_best_l_2, "", "stefcal_normal_p_best_l_2");
-    save_to_file_a(p_best_mean, "", "stefcal_normal_p_best_mean");
-    save_to_file_a(p_best_std, "", "stefcal_normal_p_best_std");
+    save_to_file_a(p_best_l_1, p_best_dir(directory), "stefcal_normal_p_best_l_1");
+    save_to_file_a(p_best_l_2, p_best_dir(directory), "stefcal_normal_p_best_l_2");
+    save_to_file_a(p_best_mean, p_best_dir(directory), "stefcal_normal_p_best_mean");
+    save_to_file_a(p_best_std, p_best_dir(directory), "stefcal_normal_p_best_std");
 
     free_a(p_best_l_1);
     free_a(p_best_l_2);
@@ -5258,10 +5273,10 @@ void extract_normal_p_best_lm_non_adaptive_l1_l2(char* directory, int* order_min
         }
     }
 
-    save_to_file_a(p_best_l_1, "", "lm_non_adaptive_l1_l2_normal_p_best_l_1");
-    save_to_file_a(p_best_l_2, "", "lm_non_adaptive_l1_l2_normal_p_best_l_2");
-    save_to_file_a(p_best_mean, "", "lm_non_adaptive_l1_l2_normal_p_best_mean");
-    save_to_file_a(p_best_std, "", "lm_non_adaptive_l1_l2_normal_p_best_std");
+    save_to_file_a(p_best_l_1, p_best_dir(directory), "lm_non_adaptive_l1_l2_normal_p_best_l_1");
+    save_to_file_a(p_best_l_2, p_best_dir(directory), "lm_non_adaptive_l1_l2_normal_p_best_l_2");
+    save_to_file_a(p_best_mean, p_best_dir(directory), "lm_non_adaptive_l1_l2_normal_p_best_mean");
+    save_to_file_a(p_best_std, p_best_dir(directory), "lm_non_adaptive_l1_l2_normal_p_best_std");
 
     free_a(p_best_l_1);
     free_a(p_best_l_2);
@@ -5379,10 +5394,10 @@ void extract_normal_p_best_stefcal_improved(char* directory, int* order_min, int
         }
     }
 
-    save_to_file_a(p_best_l_1, "", "stefcal_improved_normal_p_best_l_1");
-    save_to_file_a(p_best_l_2, "", "stefcal_improved_normal_p_best_l_2");
-    save_to_file_a(p_best_mean, "", "stefcal_improved_normal_p_best_mean");
-    save_to_file_a(p_best_std, "", "stefcal_improved_normal_p_best_std");
+    save_to_file_a(p_best_l_1, p_best_dir(directory), "stefcal_improved_normal_p_best_l_1");
+    save_to_file_a(p_best_l_2, p_best_dir(directory), "stefcal_improved_normal_p_best_l_2");
+    save_to_file_a(p_best_mean, p_best_dir(directory), "stefcal_improved_normal_p_best_mean");
+    save_to_file_a(p_best_std, p_best_dir(directory), "stefcal_improved_normal_p_best_std");
 
     free_a(p_best_l_1);
     free_a(p_best_l_2);
@@ -5487,10 +5502,10 @@ void extract_pso_p_best_adam_3d_b1_b2(char* directory, int* order_min, int* orde
         }
     }
 
-    save_to_file_a(p_best_l_1, "", "pso_p_best_l_1");
-    save_to_file_a(p_best_l_2, "", "pso_p_best_l_2");
-    save_to_file_a(p_best_mean, "", "pso_p_best_mean");
-    save_to_file_a(p_best_std, "", "pso_p_best_std");
+    save_to_file_a(p_best_l_1, p_best_dir(directory), "pso_p_best_l_1");
+    save_to_file_a(p_best_l_2, p_best_dir(directory), "pso_p_best_l_2");
+    save_to_file_a(p_best_mean, p_best_dir(directory), "pso_p_best_mean");
+    save_to_file_a(p_best_std, p_best_dir(directory), "pso_p_best_std");
 
     free_a(p_best_l_1);
     free_a(p_best_l_2);
@@ -5589,10 +5604,10 @@ void extract_pso_p_best_adam_fixed_alpha(char* directory, int* order_min, int* o
         }
     }
 
-    save_to_file_a(p_best_l_1, "", "pso_p_best_l_1");
-    save_to_file_a(p_best_l_2, "", "pso_p_best_l_2");
-    save_to_file_a(p_best_mean, "", "pso_p_best_mean");
-    save_to_file_a(p_best_std, "", "pso_p_best_std");
+    save_to_file_a(p_best_l_1, p_best_dir(directory), "pso_p_best_l_1");
+    save_to_file_a(p_best_l_2, p_best_dir(directory), "pso_p_best_l_2");
+    save_to_file_a(p_best_mean, p_best_dir(directory), "pso_p_best_mean");
+    save_to_file_a(p_best_std, p_best_dir(directory), "pso_p_best_std");
 
     free_a(p_best_l_1);
     free_a(p_best_l_2);
@@ -5723,10 +5738,10 @@ void extract_normal_p_best_stochastic_fixed_b(char* directory, int* order_min, i
         }
     }
 
-    save_to_file_a(p_best_l_1, "", "stochastic_fixed_b_normal_p_best_l_1");
-    save_to_file_a(p_best_l_2, "", "stochastic_fixed_b_normal_p_best_l_2");
-    save_to_file_a(p_best_mean, "", "stochastic_fixed_b_normal_p_best_mean");
-    save_to_file_a(p_best_std, "", "stochastic_fixed_b_normal_p_best_std");
+    save_to_file_a(p_best_l_1, p_best_dir(directory), "stochastic_fixed_b_normal_p_best_l_1");
+    save_to_file_a(p_best_l_2, p_best_dir(directory), "stochastic_fixed_b_normal_p_best_l_2");
+    save_to_file_a(p_best_mean, p_best_dir(directory), "stochastic_fixed_b_normal_p_best_mean");
+    save_to_file_a(p_best_std, p_best_dir(directory), "stochastic_fixed_b_normal_p_best_std");
 
     free_a(p_best_l_1);
     free_a(p_best_l_2);
@@ -5840,10 +5855,10 @@ void extract_pso_p_best_stochastic_fixed_b(char* directory, int* order_min, int*
         }
     }
 
-    save_to_file_a(p_best_l_1, "", "stochastic_fixed_b_pso_p_best_l_1");
-    save_to_file_a(p_best_l_2, "", "stochastic_fixed_b_pso_p_best_l_2");
-    save_to_file_a(p_best_mean, "", "stochastic_fixed_b_pso_p_best_mean");
-    save_to_file_a(p_best_std, "", "stochastic_fixed_b_pso_p_best_std");
+    save_to_file_a(p_best_l_1, p_best_dir(directory), "stochastic_fixed_b_pso_p_best_l_1");
+    save_to_file_a(p_best_l_2, p_best_dir(directory), "stochastic_fixed_b_pso_p_best_l_2");
+    save_to_file_a(p_best_mean, p_best_dir(directory), "stochastic_fixed_b_pso_p_best_mean");
+    save_to_file_a(p_best_std, p_best_dir(directory), "stochastic_fixed_b_pso_p_best_std");
 
     free_a(p_best_l_1);
     free_a(p_best_l_2);
