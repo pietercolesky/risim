@@ -333,13 +333,33 @@ means running the published settings.
 ./run.sh -u          # or: make test && ./unit_test_runner
 ```
 
-`unit_test/test_runner.c` runs all thirteen suites (440 tests) and exits with the number
+`unit_test/test_runner.c` runs all thirteen suites (441 tests) and exits with the number
 of failures. Two groups are excluded from the default run and can be re-enabled in the
 relevant `run_*_tests()` function:
 
 - tests that call gnuplot, which only pass where gnuplot is installed;
 - integration tests in `test_data_store.c` and `test_pso.c`, which need datasets
   generated beforehand and run a full search.
+
+---
+
+## Known issues and changelog
+
+**Noise model (fixed in `v1.1`).** Up to and including tag `v1.0-thesis`, `generate_noise`
+in `src/simulator.c` drew the real and imaginary parts of the noise from a uniform
+distribution on [0, 1) instead of a standard normal distribution. With the scaling
+`sig = sqrt(P/2)` this gave noise with:
+
+- a non-zero mean of `(sig/2)(1 + i)` on every visibility, and
+- a power of `P/3` instead of the requested `P`, i.e. a realized SNR about 4.8 dB higher
+  than the nominal SNR (the 1000 dB datasets are unaffected).
+
+From `v1.1` the noise is zero-mean complex Gaussian with power `P`, as intended, and
+`test_generate_noise_statistics` in `unit_test/test_simulator.c` checks its mean, power and
+Hermitian symmetry. The published thesis and paper results were produced with the earlier
+noise model; check out `v1.0-thesis` to reproduce them exactly. A comparison of StEFCal and
+SAS under both noise models showed the same solver rankings, with the earlier model giving
+milder noise than the nominal SNR labels.
 
 ---
 

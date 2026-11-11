@@ -1161,8 +1161,11 @@ double* power_needed_for_SNR(double* P_signal, double* SNR) {
 }
 
 /**
- * Function that generates noise at a certain power level
+ * Function that generates zero-mean complex Gaussian (thermal) noise at a certain power level:
+ * the real and imaginary parts are each N(0, power/2), so that E|n|^2 = power.
  * http://dsp.stackexchange.com/questions/16216/adding-white-noise-to-complex-signal-complex-envelope
+ * NOTE: before this was fixed the real and imaginary parts were drawn from U[0,1) instead of N(0,1),
+ * which gave non-zero-mean noise with power/3 instead of power (see README, "Known issues").
  * RETURNS:
  *  - noise mat
  * INPUT:
@@ -1175,8 +1178,8 @@ struct array* generate_noise(struct Simulator* simulator, struct array* D, doubl
     for (size_t i = 0; i < D->dimensions[0]; i++) {
         for (size_t j = i+1; j < D->dimensions[1]; j++) {
             for (size_t h = 0; h < D->dimensions[2]; h++) {
-                double random1 = gsl_rng_uniform(simulator->rng);
-                double random2 = gsl_rng_uniform(simulator->rng);
+                double random1 = gsl_ran_gaussian(simulator->rng, 1.0);
+                double random2 = gsl_ran_gaussian(simulator->rng, 1.0);
 
                 double complex rand_complex = (sig * random1) + (sig * random2 * I);
                 double complex rand_complex_conj = conj(rand_complex);

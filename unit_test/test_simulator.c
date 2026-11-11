@@ -454,6 +454,64 @@ void test_det_power_of_signal() {
     free(P_signal);
 }
 
+/* generate_noise must give zero-mean complex Gaussian noise with E|n|^2 = power and a
+ * Hermitian noise matrix (regression test for the earlier U[0,1) draws, which had mean
+ * (sig/2)(1+i) and power/3). */
+void test_generate_noise_statistics() {
+    double h_min = -1;
+    double h_max = 1;
+    double dec = (-74 - 39.0 / 60 - 37.481 / 3600) * (M_PI / 180);
+    double lat = (-30 - 43.0 / 60 - 17.34 / 3600) * (M_PI / 180);
+    double freq = 150 * pow(10,6);
+    enum LayoutType layout = SQR;
+    size_t n_steps = 600;
+    double bas_len = 50;
+    int order = 2;
+    int seed = 12345678;
+    double snr = 1000;
+    double max_amp = 2;
+    struct Simulator* simulator = initialize_simulator(&h_min, &h_max, &dec, &lat, &freq, &layout, &n_steps, &bas_len, &order, &snr, &max_amp, &seed);
+
+    size_t N = 10, T = 2000;
+    double power = 4.0;
+    struct array* D = zeros_a(&(size_t){3}, (size_t[]){N, N, T}, &(enum DataType){COMPLEX});
+    struct array* noise = generate_noise(simulator, D, &power);
+
+    double complex sum = 0;
+    double sum_pow = 0;
+    size_t count = 0;
+    for (size_t i = 0; i < N; i++) {
+        for (size_t j = 0; j < N; j++) {
+            for (size_t h = 0; h < T; h++) {
+                double complex n_ij = *(double complex*)get_element_a(noise, (size_t[]){i, j, h});
+                if (i == j) {
+                    TEST_ASSERT_TRUE_MESSAGE(cabs(n_ij) == 0.0, "noise must be zero on the diagonal");
+                    continue;
+                }
+                double complex n_ji = *(double complex*)get_element_a(noise, (size_t[]){j, i, h});
+                TEST_ASSERT_TRUE_MESSAGE(cabs(n_ij - conj(n_ji)) == 0.0, "noise matrix must be Hermitian");
+                sum += n_ij;
+                sum_pow += creal(n_ij * conj(n_ij));
+                count++;
+            }
+        }
+    }
+    double complex mean = sum / (double)count;
+    double mean_pow = sum_pow / (double)count;
+
+    /* 180000 noise values (90000 independent draws): the standard error of the mean of each part
+     * is ~0.005 and of the power ~0.013, so these tolerances are > 10 standard errors. The old
+     * uniform noise gave a mean of 0.71 per part and a power of 1.33, and fails both. */
+    /* Unity is built without double support here, so compare explicitly. */
+    TEST_ASSERT_TRUE_MESSAGE(fabs(creal(mean)) < 0.05, "real part of the noise must have zero mean");
+    TEST_ASSERT_TRUE_MESSAGE(fabs(cimag(mean)) < 0.05, "imaginary part of the noise must have zero mean");
+    TEST_ASSERT_TRUE_MESSAGE(fabs(mean_pow - power) < 0.15, "noise power must equal the requested power");
+
+    free_a(D);
+    free_a(noise);
+    free_s(simulator);
+}
+
 void test_create_vis_mat_with_error() {
     double h_min = -1;
     double h_max = 1;
@@ -586,6 +644,7 @@ int run_simulator_tests(void) {
     RUN_TEST(test_create_antenna_gains);
     RUN_TEST(test_create_vis_mat_no_error);
     RUN_TEST(test_det_power_of_signal);
+    RUN_TEST(test_generate_noise_statistics);
     RUN_TEST(test_create_vis_mat_with_error);
     // RUN_TEST(test_plot_visibilities);
     RUN_TEST(test_save_to_file_s);
